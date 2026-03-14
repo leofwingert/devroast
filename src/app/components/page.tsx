@@ -129,7 +129,14 @@ export default function ComponentsPage() {
 					</h2>
 
 					<CodeBlock>
-						<CodeBlockHeader>roast.ts</CodeBlockHeader>
+						<CodeBlockHeader>
+							<span className="inline-block h-2.5 w-2.5 rounded-full bg-accent-red" />
+							<span className="inline-block h-2.5 w-2.5 rounded-full bg-accent-amber" />
+							<span className="inline-block h-2.5 w-2.5 rounded-full bg-accent-green" />
+							<span className="ml-auto font-mono text-xs text-text-tertiary">
+								roast.ts
+							</span>
+						</CodeBlockHeader>
 						<CodeBlockBody code={sampleCode} language="typescript" />
 					</CodeBlock>
 				</section>

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import type { BundledLanguage } from "shiki";
 import {
-	EntryCode,
-	EntryMeta,
-	LeaderboardEntry,
-} from "@/components/ui/leaderboard-entry";
+	CodeBlock,
+	CodeBlockBody,
+	CodeBlockHeader,
+} from "@/components/ui/code-block";
 
 export const metadata: Metadata = {
 	title: "Shame Leaderboard - DevRoast",
@@ -75,6 +75,45 @@ else { return !false; }`,
 const totalSubmissions = "2,847";
 const avgScore = "4.2";
 
+function EntryMeta({
+	rank,
+	score,
+	language,
+	lineCount,
+}: {
+	rank: number;
+	score: number;
+	language: string;
+	lineCount: number;
+}) {
+	return (
+		<CodeBlockHeader className="h-12 justify-between px-5">
+			<div className="flex items-center gap-4">
+				<div className="flex items-center gap-1.5">
+					<span className="font-mono text-xs text-text-tertiary">#</span>
+					<span className="font-mono text-[13px] font-bold text-accent-amber">
+						{rank}
+					</span>
+				</div>
+				<div className="flex items-center gap-1.5">
+					<span className="font-mono text-xs text-text-tertiary">score:</span>
+					<span className="font-mono text-[13px] font-bold text-accent-red">
+						{score.toFixed(1)}
+					</span>
+				</div>
+			</div>
+			<div className="flex items-center gap-3">
+				<span className="font-mono text-xs text-text-secondary">
+					{language}
+				</span>
+				<span className="font-mono text-xs text-text-tertiary">
+					{lineCount} {lineCount === 1 ? "line" : "lines"}
+				</span>
+			</div>
+		</CodeBlockHeader>
+	);
+}
+
 export default function LeaderboardPage() {
 	const lineCount = (code: string) => code.split("\n").length;
 
@@ -110,15 +149,15 @@ export default function LeaderboardPage() {
 				{/* Leaderboard Entries */}
 				<div className="flex flex-col gap-5">
 					{leaderboardData.map((entry) => (
-						<LeaderboardEntry key={entry.rank}>
+						<CodeBlock key={entry.rank}>
 							<EntryMeta
 								rank={entry.rank}
 								score={entry.score}
 								language={entry.language}
 								lineCount={lineCount(entry.code)}
 							/>
-							<EntryCode code={entry.code} language={entry.shikiLanguage} />
-						</LeaderboardEntry>
+							<CodeBlockBody code={entry.code} language={entry.shikiLanguage} />
+						</CodeBlock>
 					))}
 				</div>
 			</section>
