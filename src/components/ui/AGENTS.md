@@ -111,8 +111,9 @@ src/components/ui/
   badge.tsx        ← Badge (critical/warning/good)
   toggle.tsx       ← Toggle + ToggleLabel (Base UI Switch, client component)
   card.tsx         ← Card + CardTitle + CardDescription (generic container)
-  code-block.tsx   ← CodeBlock + CodeBlockHeader + CodeBlockBody (async RSC, Shiki + vesper)
-  diff-line.tsx    ← DiffLine (added/removed/context)
+  code-block.tsx         ← CodeBlock + CodeBlockHeader + CodeBlockBody (async RSC, Shiki + vesper)
+  code-block-client.tsx  ← CodeBlockBodyClient ("use client", client-side Shiki via singleton highlighter)
+  diff-line.tsx          ← DiffLine (added/removed/context)
   score-ring.tsx   ← ScoreRing (SVG progress ring)
   AGENTS.md        ← this file
 ```

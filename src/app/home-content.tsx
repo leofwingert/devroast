@@ -27,35 +27,6 @@ const sampleCode = `function calculateTotal(items) {
   return total;
 }`;
 
-const leaderboardData = [
-	{
-		rank: 1,
-		score: 1.2,
-		lines: [
-			'eval(prompt("enter code"))',
-			"document.write(response)",
-			"// trust the user lol",
-		],
-		language: "javascript",
-	},
-	{
-		rank: 2,
-		score: 1.8,
-		lines: [
-			"if (x == true) { return true; }",
-			"else if (x == false) { return false; }",
-			"else { return !false; }",
-		],
-		language: "typescript",
-	},
-	{
-		rank: 3,
-		score: 2.1,
-		lines: ["SELECT * FROM users WHERE 1=1", "-- TODO: add authentication"],
-		language: "sql",
-	},
-];
-
 function LineNumbers({ count }: { count: number }) {
 	return (
 		<div className="sticky left-0 z-10 flex flex-col border-r border-border-primary bg-bg-surface px-3 py-4">
@@ -76,9 +47,10 @@ function LineNumbers({ count }: { count: number }) {
 
 type HomeContentProps = {
 	statsSlot: React.ReactNode;
+	leaderboardSlot: React.ReactNode;
 };
 
-function HomeContent({ statsSlot }: HomeContentProps) {
+function HomeContent({ statsSlot, leaderboardSlot }: HomeContentProps) {
 	const [code, setCode] = useState(sampleCode);
 	const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey | null>(
 		null,
@@ -199,67 +171,8 @@ function HomeContent({ statsSlot }: HomeContentProps) {
 					</Link>
 				</div>
 
-				{/* Leaderboard Table */}
-				<div className="w-full border border-border-primary">
-					{/* Table Header */}
-					<div className="flex h-10 items-center bg-bg-surface px-5">
-						<span className="w-[50px] font-mono text-xs font-medium text-text-tertiary">
-							#
-						</span>
-						<span className="w-[70px] font-mono text-xs font-medium text-text-tertiary">
-							score
-						</span>
-						<span className="flex-1 font-mono text-xs font-medium text-text-tertiary">
-							code
-						</span>
-						<span className="w-[100px] font-mono text-xs font-medium text-text-tertiary">
-							lang
-						</span>
-					</div>
-
-					{/* Table Rows */}
-					{leaderboardData.map((entry, idx) => (
-						<div
-							key={entry.rank}
-							className={`flex px-5 py-4 ${idx < leaderboardData.length - 1 ? "border-b border-border-primary" : ""}`}
-						>
-							<span
-								className={`w-[50px] font-mono text-xs ${entry.rank === 1 ? "text-accent-amber" : "text-text-secondary"}`}
-							>
-								{entry.rank}
-							</span>
-							<span className="w-[70px] font-mono text-xs font-bold text-accent-red">
-								{entry.score.toFixed(1)}
-							</span>
-							<div className="flex flex-1 flex-col gap-0.5">
-								{entry.lines.map((line) => (
-									<span
-										key={line}
-										className={`font-mono text-xs ${line.startsWith("//") || line.startsWith("--") ? "text-[#8B8B8B]" : "text-text-primary"}`}
-									>
-										{line}
-									</span>
-								))}
-							</div>
-							<span className="w-[100px] font-mono text-xs text-text-secondary">
-								{entry.language}
-							</span>
-						</div>
-					))}
-				</div>
-
-				{/* Fade Hint */}
-				<div className="flex justify-center pb-10">
-					<span className="font-mono text-xs text-text-tertiary">
-						showing top 3 of 2,847 ·{" "}
-						<Link
-							href="/leaderboard"
-							className="text-text-secondary transition-colors hover:text-text-primary"
-						>
-							view full leaderboard {">>"}
-						</Link>
-					</span>
-				</div>
+				{/* Leaderboard Table + Footer (server-prefetched, Suspense) */}
+				{leaderboardSlot}
 			</section>
 		</main>
 	);
