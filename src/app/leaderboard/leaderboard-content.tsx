@@ -14,10 +14,6 @@ const stackVariants = tv({
 	base: "flex flex-col gap-5",
 });
 
-const entryMetaVariants = tv({
-	base: "flex h-12 items-center justify-between border-b border-border-primary bg-bg-surface px-5",
-});
-
 const metaLeftVariants = tv({
 	base: "flex items-center gap-4",
 });
