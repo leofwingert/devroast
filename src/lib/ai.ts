@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
 export type RoastResult = {
 	score: number;
@@ -20,7 +20,9 @@ export type RoastResult = {
 	}>;
 };
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
+const groq = new Groq({
+	apiKey: process.env.GROQ_API_KEY,
+});
 
 const SYSTEM_PROMPT_ROAST = `You are DevRoast, an AI that brutally roasts code submissions. Your goal is to be sarcastically harsh but technically accurate.
 
@@ -69,8 +71,6 @@ export async function analyzeCode(
 	language: string,
 	roastMode: boolean,
 ): Promise<RoastResult> {
-	const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
 	const systemPrompt = roastMode
 		? SYSTEM_PROMPT_ROAST
 		: SYSTEM_PROMPT_CONSTRUCTIVE;
@@ -85,16 +85,19 @@ ${code}
 \`\`\``;
 
 	try {
-		const result = await model.generateContent({
-			contents: [{ role: "user", parts: [{ text: prompt }] }],
-			generationConfig: {
-				responseMimeType: "application/json",
-			},
+		const chatCompletion = await groq.chat.completions.create({
+			messages: [{ role: "user", content: prompt }],
+			model: "llama-3.3-70b-versatile",
+			response_format: { type: "json_object" },
+			temperature: 0.7,
 		});
 
-		const response = result.response.text();
+		const response = chatCompletion.choices[0]?.message?.content ?? "";
 
-		// Parse JSON response directly since we set responseMimeType
+		if (!response) {
+			throw new Error("Empty response from AI");
+		}
+
 		const parsed = JSON.parse(response);
 
 		return {
@@ -107,7 +110,6 @@ ${code}
 	} catch (error) {
 		console.error("AI analysis failed:", error);
 
-		// Return fallback on error
 		return {
 			score: 5,
 			verdict: "rough_around_the_edges",
