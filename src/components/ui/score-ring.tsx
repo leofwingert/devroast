@@ -1,3 +1,9 @@
+import { tv } from "tailwind-variants";
+
+const scoreRingVariants = tv({
+	base: "relative inline-flex items-center justify-center",
+});
+
 type ScoreRingProps = {
 	score: number;
 	max?: number;
@@ -15,7 +21,7 @@ function ScoreRing({ score, max = 10, className }: ScoreRingProps) {
 
 	return (
 		<div
-			className={`relative inline-flex items-center justify-center ${className ?? ""}`}
+			className={scoreRingVariants({ className })}
 			style={{ width: size, height: size }}
 		>
 			<svg
@@ -70,4 +76,4 @@ function ScoreRing({ score, max = 10, className }: ScoreRingProps) {
 	);
 }
 
-export { ScoreRing, type ScoreRingProps };
+export { ScoreRing, type ScoreRingProps, scoreRingVariants };

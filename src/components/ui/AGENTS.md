@@ -103,15 +103,15 @@ Available token prefixes:
 
 ### 8. File structure
 
-One component per file. File name matches the component name in kebab-case.
+One component per file. File name matches the component name in kebab-case. Components with sub-parts use the **composition pattern** — sub-components are exported from the same file.
 
 ```
 src/components/ui/
   button.tsx       ← Button (4 variants, 3 sizes)
   badge.tsx        ← Badge (critical/warning/good)
-  toggle.tsx       ← Toggle (Base UI Switch, client component)
-  card.tsx         ← Card (generic container)
-  code-block.tsx   ← CodeBlock (async RSC, Shiki + vesper)
+  toggle.tsx       ← Toggle + ToggleLabel (Base UI Switch, client component)
+  card.tsx         ← Card + CardTitle + CardDescription (generic container)
+  code-block.tsx   ← CodeBlock + CodeBlockHeader + CodeBlockBody (async RSC, Shiki + vesper)
   diff-line.tsx    ← DiffLine (added/removed/context)
   score-ring.tsx   ← ScoreRing (SVG progress ring)
   AGENTS.md        ← this file
@@ -119,9 +119,46 @@ src/components/ui/
 
 ### 9. Client vs server components
 
-- **Server components (default)**: Most components are React Server Components. No `"use client"` directive needed. Can be `async` (e.g., CodeBlock uses `await codeToHtml()`).
+- **Server components (default)**: Most components are React Server Components. No `"use client"` directive needed. Can be `async` (e.g., CodeBlockBody uses `await codeToHtml()`).
 - **Client components**: Only add `"use client"` when the component uses hooks (`useState`, `useEffect`, etc.), event handlers as state, or browser-only APIs. Example: Toggle uses Base UI's Switch which requires client-side interactivity.
 - **Base UI**: Use `@base-ui/react` for components that need accessible interactive behavior (switches, dialogs, etc.). These always require `"use client"` since they use hooks internally.
+
+### 10. Composition pattern
+
+When a component has distinct sub-parts (title, description, header, body, label), split them into sub-components exported from the same file. Consumers compose them as children instead of passing props.
+
+```tsx
+// correct — composition pattern
+<Card>
+  <CardTitle>title</CardTitle>
+  <CardDescription>description</CardDescription>
+</Card>
+
+<Toggle defaultChecked>
+  <ToggleLabel>roast mode</ToggleLabel>
+</Toggle>
+
+<CodeBlock>
+  <CodeBlockHeader>file.ts</CodeBlockHeader>
+  <CodeBlockBody code={code} language="typescript" />
+</CodeBlock>
+
+// wrong — prop-based pattern
+<Card title="title" description="description" />
+<Toggle label="roast mode" defaultChecked />
+<CodeBlock code={code} language="typescript" filename="file.ts" />
+```
+
+Each sub-component should:
+- Have its own `tv()` variant function (e.g. `cardTitleVariants`)
+- Extend native element props (`React.ComponentProps<"p">`, etc.)
+- Accept and merge `className` through `tv()`
+- Be a named export from the same file as the root component
+
+Don't split into sub-components when:
+- The internal structure is mathematically coupled to props (e.g. ScoreRing SVG)
+- The sub-part is a visual detail, not a semantic concern (e.g. Badge dot)
+- The prefix/decoration is tightly coupled to a variant (e.g. DiffLine `+`/`-`)
 
 ## Component template
 

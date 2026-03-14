@@ -5,13 +5,13 @@ const buttonVariants = tv({
 	variants: {
 		variant: {
 			primary:
-				"bg-accent-green text-[#0A0A0A] hover:bg-accent-green/90 active:bg-accent-green/80",
+				"bg-accent-green text-[#0A0A0A] enabled:hover:bg-accent-green/90 enabled:active:bg-accent-green/80",
 			secondary:
-				"border border-border-primary bg-transparent text-text-primary hover:bg-border-primary/50 active:bg-border-primary/70",
+				"border border-border-primary bg-transparent text-text-primary enabled:hover:bg-border-primary/50 enabled:active:bg-border-primary/70",
 			ghost:
-				"border border-border-primary bg-transparent text-text-secondary hover:text-text-primary hover:bg-border-primary/30 active:bg-border-primary/50",
+				"border border-border-primary bg-transparent text-text-secondary enabled:hover:text-text-primary enabled:hover:bg-border-primary/30 enabled:active:bg-border-primary/50",
 			destructive:
-				"bg-accent-red text-text-primary hover:bg-accent-red/90 active:bg-accent-red/80",
+				"bg-accent-red text-text-primary enabled:hover:bg-accent-red/90 enabled:active:bg-accent-red/80",
 		},
 		size: {
 			sm: "px-3 py-1.5 text-xs",

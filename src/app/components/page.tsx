@@ -1,10 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CodeBlock } from "@/components/ui/code-block";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import {
+	CodeBlock,
+	CodeBlockBody,
+	CodeBlockHeader,
+} from "@/components/ui/code-block";
 import { DiffLine } from "@/components/ui/diff-line";
 import { ScoreRing } from "@/components/ui/score-ring";
-import { Toggle } from "@/components/ui/toggle";
+import { Toggle, ToggleLabel } from "@/components/ui/toggle";
 
 const buttonVariants = [
 	"primary",
@@ -85,8 +89,12 @@ export default function ComponentsPage() {
 					</h2>
 
 					<div className="flex flex-col gap-4">
-						<Toggle label="Dark mode" />
-						<Toggle label="Auto-roast on save" defaultChecked />
+						<Toggle>
+							<ToggleLabel>Dark mode</ToggleLabel>
+						</Toggle>
+						<Toggle defaultChecked>
+							<ToggleLabel>Auto-roast on save</ToggleLabel>
+						</Toggle>
 						<Toggle />
 					</div>
 				</section>
@@ -100,23 +108,15 @@ export default function ComponentsPage() {
 
 					<div className="flex gap-6">
 						<Card className="flex-1">
-							<p className="font-mono text-sm font-bold text-text-primary">
-								roast_summary
-							</p>
-							<p className="font-mono text-xs text-text-secondary">
+							<CardTitle>roast_summary</CardTitle>
+							<CardDescription>
 								Your code has been analyzed. Results are in.
-							</p>
+							</CardDescription>
 						</Card>
 						<Card className="flex-1">
-							<p className="font-mono text-sm font-bold text-text-primary">
-								metrics
-							</p>
-							<p className="font-mono text-xs text-text-secondary">
-								Complexity: High
-							</p>
-							<p className="font-mono text-xs text-text-secondary">
-								Readability: Low
-							</p>
+							<CardTitle>metrics</CardTitle>
+							<CardDescription>Complexity: High</CardDescription>
+							<CardDescription>Readability: Low</CardDescription>
 						</Card>
 					</div>
 				</section>
@@ -128,11 +128,10 @@ export default function ComponentsPage() {
 						{"code_block"}
 					</h2>
 
-					<CodeBlock
-						code={sampleCode}
-						language="typescript"
-						filename="roast.ts"
-					/>
+					<CodeBlock>
+						<CodeBlockHeader>roast.ts</CodeBlockHeader>
+						<CodeBlockBody code={sampleCode} language="typescript" />
+					</CodeBlock>
 				</section>
 
 				{/* DiffLine */}
