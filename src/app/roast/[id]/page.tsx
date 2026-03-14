@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import {
 	CodeBlock,
@@ -9,140 +9,8 @@ import {
 } from "@/components/ui/code-block";
 import { DiffLine } from "@/components/ui/diff-line";
 import { ScoreRing } from "@/components/ui/score-ring";
-
-// ---------------------------------------------------------------------------
-// Static data (will be replaced with DB queries later)
-// ---------------------------------------------------------------------------
-
-const staticRoast = {
-	score: 3.5,
-	verdict: "needs_serious_help" as const,
-	language: "javascript",
-	lineCount: 7,
-	roastComment:
-		'"This code is what happens when you learn JavaScript from Stack Overflow answers sorted by oldest first."',
-	code: `function calculateTotal(items) {
-  var total = 0;
-  for (var i = 0; i < items.length; i++) {
-    total = total + items[i].price * items[i].quantity;
-    if (items[i].discount) {
-      total = total - items[i].discount;
-    }
-  }
-  total = total * 1.08;
-  total = Math.round(total * 100) / 100;
-  return total;
-}
-
-// usage
-var result = calculateTotal(cart);
-console.log("Total: $" + result);`,
-	issues: [
-		{
-			severity: "critical" as const,
-			title: "Using var instead of const/let",
-			description:
-				"var has function scope which leads to hoisting bugs. Always use const for values that don't change, let for ones that do.",
-		},
-		{
-			severity: "critical" as const,
-			title: "No input validation",
-			description:
-				"Function will throw on null/undefined input. Add guard clauses to handle edge cases gracefully.",
-		},
-		{
-			severity: "warning" as const,
-			title: "Hardcoded tax rate",
-			description:
-				"Magic number 1.08 should be a named constant. Makes it easier to update and self-documents the intent.",
-		},
-		{
-			severity: "good" as const,
-			title: "Correct rounding approach",
-			description:
-				"Using Math.round with multiplication is the right pattern for currency. Avoids floating-point display issues.",
-		},
-	],
-	diffHeader: "your_code.js → improved_code.js",
-	diffLines: [
-		{ type: "removed" as const, content: "function calculateTotal(items) {" },
-		{
-			type: "added" as const,
-			content: "const TAX_RATE = 0.08;",
-		},
-		{ type: "added" as const, content: "" },
-		{
-			type: "added" as const,
-			content: "function calculateTotal(items = []) {",
-		},
-		{
-			type: "removed" as const,
-			content: "  var total = 0;",
-		},
-		{
-			type: "added" as const,
-			content: "  const total = items.reduce((sum, item) => {",
-		},
-		{
-			type: "removed" as const,
-			content: "  for (var i = 0; i < items.length; i++) {",
-		},
-		{
-			type: "removed" as const,
-			content: "    total = total + items[i].price * items[i].quantity;",
-		},
-		{
-			type: "removed" as const,
-			content: "    if (items[i].discount) {",
-		},
-		{
-			type: "removed" as const,
-			content: "      total = total - items[i].discount;",
-		},
-		{
-			type: "removed" as const,
-			content: "    }",
-		},
-		{
-			type: "removed" as const,
-			content: "  }",
-		},
-		{
-			type: "added" as const,
-			content: "    const subtotal = item.price * item.quantity;",
-		},
-		{
-			type: "added" as const,
-			content: "    const discount = item.discount ?? 0;",
-		},
-		{
-			type: "added" as const,
-			content: "    return sum + subtotal - discount;",
-		},
-		{
-			type: "added" as const,
-			content: "  }, 0);",
-		},
-		{ type: "context" as const, content: "" },
-		{
-			type: "removed" as const,
-			content: "  total = total * 1.08;",
-		},
-		{
-			type: "removed" as const,
-			content: "  total = Math.round(total * 100) / 100;",
-		},
-		{
-			type: "removed" as const,
-			content: "  return total;",
-		},
-		{
-			type: "added" as const,
-			content: "  return Math.round(total * (1 + TAX_RATE) * 100) / 100;",
-		},
-		{ type: "context" as const, content: "}" },
-	],
-};
+import { db } from "@/db";
+import { diffLines, roastIssues, roasts, submissions } from "@/db/schema";
 
 const verdictLabels: Record<string, string> = {
 	needs_serious_help: "needs_serious_help",
@@ -152,62 +20,101 @@ const verdictLabels: Record<string, string> = {
 	solid_code: "solid_code",
 };
 
-// ---------------------------------------------------------------------------
-// Metadata
-// ---------------------------------------------------------------------------
-
 export async function generateMetadata({
 	params,
 }: {
 	params: Promise<{ id: string }>;
 }): Promise<Metadata> {
 	const { id } = await params;
+
+	const [roast] = await db
+		.select()
+		.from(roasts)
+		.where(eq(roasts.id, id))
+		.limit(1);
+
+	if (!roast) {
+		return {
+			title: "Roast Not Found - DevRoast",
+		};
+	}
+
 	return {
-		title: `Roast ${id.slice(0, 8)}… - DevRoast`,
-		description: staticRoast.roastComment,
+		title: `Score: ${roast.score}/10 - DevRoast`,
+		description: roast.roastComment,
 		openGraph: {
-			title: `Score: ${staticRoast.score}/10 - DevRoast`,
-			description: staticRoast.roastComment,
+			title: `Score: ${roast.score}/10 - DevRoast`,
+			description: roast.roastComment,
 		},
 	};
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default async function RoastResultPage({
 	params,
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	await params;
+	const { id } = await params;
+
+	const [roast] = await db
+		.select()
+		.from(roasts)
+		.where(eq(roasts.id, id))
+		.limit(1);
+
+	if (!roast) {
+		return (
+			<main className="flex w-full flex-col items-center">
+				<section className="flex w-full max-w-[1280px] flex-col gap-10 px-20 py-10">
+					<h1 className="font-mono text-2xl text-accent-red">
+						Roast not found
+					</h1>
+				</section>
+			</main>
+		);
+	}
+
+	const [submission] = await db
+		.select()
+		.from(submissions)
+		.where(eq(submissions.id, roast.submissionId))
+		.limit(1);
+
+	const issues = await db
+		.select()
+		.from(roastIssues)
+		.where(eq(roastIssues.roastId, roast.id))
+		.orderBy(roastIssues.sortOrder);
+
+	const diff = await db
+		.select()
+		.from(diffLines)
+		.where(eq(diffLines.roastId, roast.id))
+		.orderBy(diffLines.lineNumber);
+
+	const scoreNum = Number.parseFloat(roast.score);
 
 	return (
 		<main className="flex w-full flex-col items-center">
 			<section className="flex w-full max-w-[1280px] flex-col gap-10 px-20 py-10">
 				{/* ── Score Hero ─────────────────────────────────── */}
 				<div className="flex items-center gap-12">
-					<ScoreRing score={staticRoast.score} />
+					<ScoreRing score={scoreNum} />
 
 					<div className="flex flex-1 flex-col gap-4">
-						<Badge variant={verdictToBadge(staticRoast.verdict)}>
-							{verdictLabels[staticRoast.verdict]}
+						<Badge variant={verdictToBadge(roast.verdict)}>
+							{verdictLabels[roast.verdict]}
 						</Badge>
 
 						<p className="font-mono text-xl leading-relaxed text-text-primary">
-							{staticRoast.roastComment}
+							{roast.roastComment}
 						</p>
 
 						<div className="flex items-center gap-4">
 							<span className="font-mono text-xs text-text-tertiary">
-								lang: {staticRoast.language} &middot; {staticRoast.lineCount}{" "}
-								lines
+								lang: {submission?.language ?? "unknown"} &middot;{" "}
+								{submission?.lineCount ?? 0} lines
 							</span>
-
-							<Button variant="ghost" size="sm">
-								share_roast
-							</Button>
 						</div>
 					</div>
 				</div>
@@ -219,7 +126,10 @@ export default async function RoastResultPage({
 					<SectionTitle>{"// your_submission"}</SectionTitle>
 
 					<CodeBlock>
-						<CodeBlockBody code={staticRoast.code} language="javascript" />
+						<CodeBlockBody
+							code={submission?.code ?? ""}
+							language={(submission?.language as "javascript") ?? "javascript"}
+						/>
 					</CodeBlock>
 				</div>
 
@@ -230,8 +140,8 @@ export default async function RoastResultPage({
 					<SectionTitle>{"// detailed_analysis"}</SectionTitle>
 
 					<div className="grid grid-cols-2 gap-5">
-						{staticRoast.issues.map((issue) => (
-							<Card key={issue.title}>
+						{issues.map((issue) => (
+							<Card key={issue.id}>
 								<Badge variant={issue.severity}>{issue.severity}</Badge>
 								<CardTitle>{issue.title}</CardTitle>
 								<CardDescription className="leading-relaxed">
@@ -245,38 +155,30 @@ export default async function RoastResultPage({
 				<Divider />
 
 				{/* ── Suggested Fix (Diff) ──────────────────────── */}
-				<div className="flex flex-col gap-4">
-					<SectionTitle>{"// suggested_fix"}</SectionTitle>
+				{diff.length > 0 && (
+					<div className="flex flex-col gap-4">
+						<SectionTitle>{"// suggested_fix"}</SectionTitle>
 
-					<CodeBlock>
-						<CodeBlockHeader>
-							<span className="font-mono text-xs text-text-secondary">
-								{staticRoast.diffHeader}
-							</span>
-						</CodeBlockHeader>
-						<div>
-							{staticRoast.diffLines.map((line, i) => (
-								<DiffLine
-									key={`diff-${
-										// biome-ignore lint/suspicious/noArrayIndexKey: diff lines are static
-										i
-									}`}
-									type={line.type}
-								>
-									{line.content}
-								</DiffLine>
-							))}
-						</div>
-					</CodeBlock>
-				</div>
+						<CodeBlock>
+							<CodeBlockHeader>
+								<span className="font-mono text-xs text-text-secondary">
+									your_code.js → improved_code.js
+								</span>
+							</CodeBlockHeader>
+							<div>
+								{diff.map((line) => (
+									<DiffLine key={line.id} type={line.type}>
+										{line.content}
+									</DiffLine>
+								))}
+							</div>
+						</CodeBlock>
+					</div>
+				)}
 			</section>
 		</main>
 	);
 }
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function verdictToBadge(verdict: string): "critical" | "warning" | "good" {
 	switch (verdict) {
