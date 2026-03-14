@@ -1,16 +1,23 @@
 /** @jsxImportSource react */
-import { ImageResponse } from "@takumi-rs/image-response";
+import { ImageResponse } from "@takumi-rs/image-response/wasm";
+import module from "@takumi-rs/wasm/next";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { roasts, submissions } from "@/db/schema";
 import { RoastOGTemplate } from "@/lib/takumi-og";
 
-export const runtime = "edge";
+export const alt = "DevRoast - Code Roast Result";
+export const size = {
+	width: 1200,
+	height: 630,
+};
+export const contentType = "image/png";
 
-export async function GET(
-	_: Request,
-	{ params }: { params: Promise<{ id: string }> },
-) {
+export default async function Image({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}) {
 	const { id } = await params;
 
 	const [roast] = await db
@@ -41,7 +48,7 @@ export async function GET(
 					Roast not found
 				</span>
 			</div>,
-			{ width: 1200, height: 630, format: "png" },
+			{ module, ...size },
 		);
 	}
 
@@ -63,6 +70,6 @@ export async function GET(
 			lineCount={lineCount}
 			roastComment={roastComment}
 		/>,
-		{ width: 1200, height: 630, format: "png" },
+		{ module, ...size },
 	);
 }
