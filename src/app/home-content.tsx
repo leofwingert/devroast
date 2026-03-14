@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { createRoast } from "@/app/actions";
 import { CodeEditor } from "@/components/editor/code-editor";
 import { LanguageSelector } from "@/components/editor/language-selector";
 import type { LanguageKey } from "@/components/editor/languages";
@@ -9,6 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Toggle, ToggleLabel } from "@/components/ui/toggle";
 
 const MAX_CODE_LENGTH = 2000;
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+	const { pending } = useFormStatus();
+	return (
+		<Button variant="primary" size="md" disabled={disabled || pending}>
+			{pending ? "$ roasting..." : "$ roast_my_code"}
+		</Button>
+	);
+}
 
 const sampleCode = `function calculateTotal(items) {
   var total = 0;
@@ -58,6 +69,7 @@ function HomeContent({ statsSlot, leaderboardSlot }: HomeContentProps) {
 	const [detectedLanguage, setDetectedLanguage] = useState<LanguageKey | null>(
 		null,
 	);
+	const [roastMode, setRoastMode] = useState(true);
 	const lines = code.split("\n");
 	const charCount = code.length;
 	const isOverLimit = charCount > MAX_CODE_LENGTH;
@@ -121,11 +133,13 @@ function HomeContent({ statsSlot, leaderboardSlot }: HomeContentProps) {
 			{/* Actions Bar */}
 			<section className="mt-4 flex w-full max-w-[780px] items-center justify-between">
 				<div className="flex items-center gap-4">
-					<Toggle defaultChecked>
+					<Toggle checked={roastMode} onCheckedChange={setRoastMode}>
 						<ToggleLabel>roast mode</ToggleLabel>
 					</Toggle>
 					<span className="font-mono text-xs text-text-tertiary">
-						{"// maximum sarcasm enabled"}
+						{roastMode
+							? "// maximum sarcasm enabled"
+							: "// constructive feedback"}
 					</span>
 				</div>
 				<div className="flex items-center gap-3">
@@ -134,9 +148,20 @@ function HomeContent({ statsSlot, leaderboardSlot }: HomeContentProps) {
 						selectedLanguage={selectedLanguage}
 						onSelect={setSelectedLanguage}
 					/>
-					<Button variant="primary" size="md" disabled={isEmpty || isOverLimit}>
-						$ roast_my_code
-					</Button>
+					<form action={createRoast}>
+						<input type="hidden" name="code" value={code} />
+						<input
+							type="hidden"
+							name="language"
+							value={selectedLanguage ?? ""}
+						/>
+						<input
+							type="hidden"
+							name="roastMode"
+							value={roastMode ? "true" : "false"}
+						/>
+						<SubmitButton disabled={isEmpty || isOverLimit} />
+					</form>
 				</div>
 			</section>
 
