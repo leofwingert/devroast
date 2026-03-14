@@ -1,8 +1,8 @@
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { LeaderboardContent } from "./leaderboard-content";
 
-/** Force dynamic rendering — this page depends on live DB data */
-export const dynamic = "force-dynamic";
+/** Revalidate data every hour */
+export const revalidate = 3600;
 
 export default async function LeaderboardPage() {
 	await Promise.all([

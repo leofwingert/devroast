@@ -3,8 +3,8 @@ import { StatsCounter } from "@/components/stats-counter";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { HomeContent } from "./home-content";
 
-/** Force dynamic rendering — this page depends on live DB data */
-export const dynamic = "force-dynamic";
+/** Revalidate data every hour */
+export const revalidate = 3600;
 
 export default async function Home() {
 	/**
