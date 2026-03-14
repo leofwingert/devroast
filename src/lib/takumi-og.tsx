@@ -8,118 +8,61 @@ interface RoastOGProps {
 	roastComment: string;
 }
 
-const colors = {
-	bgPage: "#0a0a0a",
-	textPrimary: "#fafafa",
-	textTertiary: "#71717a",
-	accentAmber: "#f59e0b",
-	accentRed: "#ef4444",
-};
-
-function truncateText(text: string, maxLength: number): string {
-	if (text.length <= maxLength) return text;
-	return text.slice(0, maxLength - 3).trim() + "...";
-}
-
 export function RoastOGTemplate({
 	score,
 	language,
 	lineCount,
 	roastComment,
 }: RoastOGProps): ReactNode {
-	const truncatedComment = truncateText(roastComment, 120);
-
 	return (
 		<div
 			style={{
 				display: "flex",
 				flexDirection: "column",
-				justifyContent: "space-between",
-				width: "100%",
-				height: "100%",
-				padding: "48px",
-				backgroundColor: colors.bgPage,
+				justifyContent: "center",
+				alignItems: "center",
+				width: 1200,
+				height: 630,
+				padding: 48,
+				backgroundColor: "#0a0a0a",
 			}}
 		>
 			<div
 				style={{
 					display: "flex",
 					flexDirection: "column",
-					gap: "24px",
-				}}
-			>
-				<div
-					style={{
-						display: "flex",
-						alignItems: "center",
-						gap: "16px",
-					}}
-				>
-					<span
-						style={{
-							fontSize: "48px",
-							fontWeight: 700,
-							color: colors.accentAmber,
-							fontFamily: "monospace",
-						}}
-					>
-						{score}/10
-					</span>
-					<span
-						style={{
-							fontSize: "24px",
-							color: colors.textTertiary,
-							fontFamily: "monospace",
-						}}
-					>
-						DevRoast
-					</span>
-				</div>
-
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						gap: "8px",
-					}}
-				>
-					<span
-						style={{
-							fontSize: "28px",
-							color: colors.textPrimary,
-							fontFamily: "sans-serif",
-							lineHeight: 1.4,
-						}}
-					>
-						{truncatedComment}
-					</span>
-				</div>
-			</div>
-
-			<div
-				style={{
-					display: "flex",
-					gap: "24px",
 					alignItems: "center",
+					gap: 32,
 				}}
 			>
 				<span
 					style={{
-						fontSize: "18px",
-						color: colors.textTertiary,
+						fontSize: 100,
+						fontWeight: 700,
+						color: "#f59e0b",
 						fontFamily: "monospace",
 					}}
 				>
-					{language}
+					{score}/10
 				</span>
+
+				<span style={{ color: "#71717a", fontSize: 24 }}>
+					{language || "?"} · {lineCount} lines
+				</span>
+
 				<span
 					style={{
-						fontSize: "18px",
-						color: colors.textTertiary,
-						fontFamily: "monospace",
+						color: "#fafafa",
+						fontSize: 28,
+						textAlign: "center",
+						maxWidth: 800,
 					}}
 				>
-					{lineCount} lines
+					{roastComment || "No comment"}
+				</span>
+
+				<span style={{ color: "#10b981", fontSize: 32, marginTop: 16 }}>
+					devroast
 				</span>
 			</div>
 		</div>
