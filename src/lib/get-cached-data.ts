@@ -1,5 +1,4 @@
 import { asc, eq, sql } from "drizzle-orm";
-import { cacheLife } from "next/cache";
 import { db } from "@/db";
 import { roasts, submissions } from "@/db/schema";
 
@@ -17,9 +16,6 @@ export type LeaderboardEntry = {
 };
 
 export async function getCachedStats(): Promise<Stats> {
-	"use cache";
-	cacheLife("hours");
-
 	const [result] = await db
 		.select({
 			totalRoasts: sql<number>`count(*)`,
@@ -36,9 +32,6 @@ export async function getCachedStats(): Promise<Stats> {
 export async function getCachedLeaderboard(
 	limit: number,
 ): Promise<LeaderboardEntry[]> {
-	"use cache";
-	cacheLife("hours");
-
 	const rows = await db
 		.select({
 			rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${roasts.score} ASC)`,
