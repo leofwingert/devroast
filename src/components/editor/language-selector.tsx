@@ -7,11 +7,11 @@ const selectorVariants = tv({
 	slots: {
 		wrapper: "relative",
 		select: [
-			"appearance-none bg-transparent",
+			"appearance-none bg-bg-surface",
 			"border border-border-primary px-3 py-1.5",
-			"font-mono text-xs text-text-secondary",
+			"font-mono text-xs text-text-primary",
 			"outline-none transition-colors",
-			"enabled:hover:text-text-primary",
+			"enabled:hover:border-border-focus",
 			"focus-visible:border-border-focus",
 			"cursor-pointer",
 			"pr-7",
