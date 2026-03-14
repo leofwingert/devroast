@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
+import type { BundledLanguage } from "shiki";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import {
@@ -128,7 +129,7 @@ export default async function RoastResultPage({
 					<CodeBlock>
 						<CodeBlockBody
 							code={submission?.code ?? ""}
-							language={(submission?.language as "javascript") ?? "javascript"}
+							language={getShikiLanguage(submission?.language)}
 						/>
 					</CodeBlock>
 				</div>
@@ -203,4 +204,37 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function Divider() {
 	return <hr className="border-border-primary" />;
+}
+
+function getShikiLanguage(
+	language: string | null | undefined,
+): BundledLanguage {
+	if (!language) return "javascript";
+	const validLanguages: BundledLanguage[] = [
+		"javascript",
+		"typescript",
+		"python",
+		"html",
+		"css",
+		"json",
+		"sql",
+		"rust",
+		"go",
+		"java",
+		"csharp",
+		"cpp",
+		"c",
+		"php",
+		"ruby",
+		"swift",
+		"kotlin",
+		"shellscript",
+		"yaml",
+		"markdown",
+		"jsx",
+		"tsx",
+	];
+	return validLanguages.includes(language as BundledLanguage)
+		? (language as BundledLanguage)
+		: "javascript";
 }
