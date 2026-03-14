@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import { ImageResponse } from "@takumi-rs/image-response";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -20,7 +21,7 @@ export async function GET(
 
 	if (!roast) {
 		return new ImageResponse(
-			<ImageResponse
+			<div
 				style={{
 					display: "flex",
 					alignItems: "center",
@@ -39,7 +40,7 @@ export async function GET(
 				>
 					Roast not found
 				</span>
-			</ImageResponse>,
+			</div>,
 			{ width: 1200, height: 630, format: "png" },
 		);
 	}

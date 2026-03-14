@@ -1,118 +1,127 @@
-import { ImageResponse } from "@takumi-rs/image-response";
+/** @jsxImportSource react */
+import type { ReactNode } from "react";
+
+interface RoastOGProps {
+	score: string;
+	language: string;
+	lineCount: number;
+	roastComment: string;
+}
+
+const colors = {
+	bgPage: "#0a0a0a",
+	textPrimary: "#fafafa",
+	textTertiary: "#71717a",
+	accentAmber: "#f59e0b",
+	accentRed: "#ef4444",
+};
+
+function truncateText(text: string, maxLength: number): string {
+	if (text.length <= maxLength) return text;
+	return text.slice(0, maxLength - 3).trim() + "...";
+}
 
 export function RoastOGTemplate({
 	score,
 	language,
 	lineCount,
 	roastComment,
-}: {
-	score: string;
-	language: string;
-	lineCount: number;
-	roastComment: string;
-}) {
+}: RoastOGProps): ReactNode {
+	const truncatedComment = truncateText(roastComment, 120);
+
 	return (
-		<ImageResponse
+		<div
 			style={{
 				display: "flex",
 				flexDirection: "column",
-				backgroundColor: "#0a0a0a",
+				justifyContent: "space-between",
 				width: "100%",
 				height: "100%",
 				padding: "48px",
+				backgroundColor: colors.bgPage,
 			}}
 		>
 			<div
 				style={{
 					display: "flex",
 					flexDirection: "column",
-					justifyContent: "space-between",
-					height: "100%",
+					gap: "24px",
 				}}
 			>
 				<div
 					style={{
 						display: "flex",
-						flexDirection: "column",
-						gap: "24px",
+						alignItems: "center",
+						gap: "16px",
 					}}
 				>
-					<div
+					<span
 						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: "16px",
+							fontSize: "48px",
+							fontWeight: 700,
+							color: colors.accentAmber,
+							fontFamily: "monospace",
 						}}
 					>
-						<span
-							style={{
-								fontSize: "48px",
-								fontWeight: 700,
-								color: "#ef4444",
-								fontFamily: "monospace",
-							}}
-						>
-							{score}/10
-						</span>
-						<span
-							style={{
-								fontSize: "24px",
-								color: "#a1a1aa",
-								fontFamily: "monospace",
-							}}
-						>
-							DevRoast
-						</span>
-					</div>
-
-					<div
+						{score}/10
+					</span>
+					<span
 						style={{
-							display: "flex",
-							flexDirection: "column",
-							gap: "8px",
+							fontSize: "24px",
+							color: colors.textTertiary,
+							fontFamily: "monospace",
 						}}
 					>
-						<span
-							style={{
-								fontSize: "28px",
-								color: "#fafafa",
-								fontFamily: "sans-serif",
-								lineHeight: 1.4,
-							}}
-						>
-							{roastComment.slice(0, 120)}
-							{roastComment.length > 120 ? "..." : ""}
-						</span>
-					</div>
+						DevRoast
+					</span>
 				</div>
 
 				<div
 					style={{
 						display: "flex",
-						gap: "24px",
-						alignItems: "center",
+						flexDirection: "column",
+						gap: "8px",
 					}}
 				>
 					<span
 						style={{
-							fontSize: "18px",
-							color: "#71717a",
-							fontFamily: "monospace",
+							fontSize: "28px",
+							color: colors.textPrimary,
+							fontFamily: "sans-serif",
+							lineHeight: 1.4,
 						}}
 					>
-						{language}
-					</span>
-					<span
-						style={{
-							fontSize: "18px",
-							color: "#71717a",
-							fontFamily: "monospace",
-						}}
-					>
-						{lineCount} lines
+						{truncatedComment}
 					</span>
 				</div>
 			</div>
-		</ImageResponse>
+
+			<div
+				style={{
+					display: "flex",
+					gap: "24px",
+					alignItems: "center",
+				}}
+			>
+				<span
+					style={{
+						fontSize: "18px",
+						color: colors.textTertiary,
+						fontFamily: "monospace",
+					}}
+				>
+					{language}
+				</span>
+				<span
+					style={{
+						fontSize: "18px",
+						color: colors.textTertiary,
+						fontFamily: "monospace",
+					}}
+				>
+					{lineCount} lines
+				</span>
+			</div>
+		</div>
 	);
 }
