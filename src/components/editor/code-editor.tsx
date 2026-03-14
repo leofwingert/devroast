@@ -1,0 +1,139 @@
+"use client";
+
+import {
+	type ChangeEvent,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from "react";
+import { tv } from "tailwind-variants";
+import type { LanguageKey } from "./languages";
+import { useHighlighter } from "./use-highlighter";
+import { useLanguageDetect } from "./use-language-detect";
+
+const editorVariants = tv({
+	slots: {
+		wrapper: "relative grid overflow-auto",
+		highlight: [
+			"pointer-events-none [grid-area:1/1]",
+			"overflow-hidden whitespace-pre font-mono text-xs leading-6",
+			"p-4",
+			// Strip Shiki wrapper styles so it inherits our layout
+			"[&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:!p-0",
+			"[&_pre]:whitespace-pre [&_pre]:font-mono [&_pre]:text-xs [&_pre]:leading-6",
+			"[&_code]:!font-mono [&_code]:!text-xs [&_code]:!leading-6",
+		],
+		textarea: [
+			"[grid-area:1/1] resize-none bg-transparent",
+			"whitespace-pre font-mono text-xs leading-6 caret-text-primary",
+			"p-4 outline-none",
+			"placeholder:text-text-tertiary",
+		],
+	},
+	variants: {
+		ready: {
+			true: { textarea: "text-transparent" },
+			false: { textarea: "text-text-primary" },
+		},
+	},
+	defaultVariants: {
+		ready: false,
+	},
+});
+
+type CodeEditorProps = {
+	value: string;
+	onChange: (code: string) => void;
+	language?: LanguageKey | null;
+	onLanguageDetected?: (language: LanguageKey | null) => void;
+	placeholder?: string;
+	className?: string;
+};
+
+/**
+ * Code editor with syntax highlighting.
+ * Transparent textarea overlaid on Shiki-highlighted code.
+ */
+function CodeEditor({
+	value,
+	onChange,
+	language = null,
+	onLanguageDetected,
+	placeholder,
+	className,
+}: CodeEditorProps) {
+	const { isLoading, highlight, loadLanguage } = useHighlighter();
+	const { detectedLanguage } = useLanguageDetect(value);
+	const highlightRef = useRef<HTMLDivElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	// Notify parent when detected language changes
+	useEffect(() => {
+		onLanguageDetected?.(detectedLanguage);
+	}, [detectedLanguage, onLanguageDetected]);
+
+	// Resolved language: manual override > auto-detect
+	const resolvedLanguage = language ?? detectedLanguage;
+
+	// Load language into Shiki when it changes
+	useEffect(() => {
+		if (resolvedLanguage) {
+			loadLanguage(resolvedLanguage);
+		}
+	}, [resolvedLanguage, loadLanguage]);
+
+	// Generate highlighted HTML
+	const highlightedHtml = useMemo(() => {
+		if (isLoading || !value) return "";
+		return highlight(value, resolvedLanguage);
+	}, [value, resolvedLanguage, isLoading, highlight]);
+
+	// Sync scroll between textarea and highlight layer
+	const handleScroll = useCallback(() => {
+		const textarea = textareaRef.current;
+		const highlightEl = highlightRef.current;
+		if (textarea && highlightEl) {
+			highlightEl.scrollTop = textarea.scrollTop;
+			highlightEl.scrollLeft = textarea.scrollLeft;
+		}
+	}, []);
+
+	const handleChange = useCallback(
+		(e: ChangeEvent<HTMLTextAreaElement>) => {
+			onChange(e.target.value);
+		},
+		[onChange],
+	);
+
+	// Highlight is ready when we have HTML to show
+	const ready = !!highlightedHtml;
+	const styles = editorVariants({ ready });
+
+	return (
+		<div className={styles.wrapper({ className })}>
+			<div
+				ref={highlightRef}
+				className={styles.highlight()}
+				aria-hidden="true"
+				dangerouslySetInnerHTML={
+					highlightedHtml ? { __html: highlightedHtml } : undefined
+				}
+			/>
+			<textarea
+				ref={textareaRef}
+				value={value}
+				onChange={handleChange}
+				onScroll={handleScroll}
+				spellCheck={false}
+				autoCapitalize="off"
+				autoComplete="off"
+				autoCorrect="off"
+				className={styles.textarea()}
+				placeholder={placeholder}
+			/>
+		</div>
+	);
+}
+
+export { CodeEditor, type CodeEditorProps };

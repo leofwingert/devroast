@@ -15,18 +15,9 @@ AI-powered code roasting app. Paste code, get brutally honest feedback.
 
 ```
 src/
-  app/
-    layout.tsx         Root layout (font loading, metadata)
-    page.tsx           Homepage (code editor, leaderboard preview)
-    globals.css        Tailwind v4 theme tokens
-    components/
-      page.tsx         Component showcase (/components)
-  components/
-    navbar.tsx         Shared Navbar
-    ui/
-      AGENTS.md        UI component conventions (read this first)
-      button.tsx       Badge, Card, CodeBlock, DiffLine,
-      ...              ScoreRing, Toggle
+  app/           Pages e layouts (App Router)
+  components/    Componentes compartilhados (ex: Navbar)
+    ui/          Componentes UI reutilizaveis (ver ui/AGENTS.md)
 ```
 
 ## Key Patterns

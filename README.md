@@ -1,33 +1,33 @@
 # DevRoast
 
-**Paste your code. Get roasted.**
+**Cole seu codigo. Leve um roast.**
 
-DevRoast is an AI-powered code review tool that gives you brutally honest feedback on your code. No sugar-coating, no hand-holding — just raw, unfiltered roasts.
+DevRoast e uma ferramenta de code review com IA que da feedback brutalmente honesto sobre o seu codigo. Sem enrolacao, sem papinho — so roasts crus e sem filtro.
 
-## What it does
+## O que faz
 
-- **Code Input** — Paste or type your code into the editor and submit it for roasting
-- **Roast Mode** — Toggle between constructive feedback and full roast mode (maximum sarcasm enabled)
-- **Score Rating** — Every submission gets a score from 0 to 10 based on code quality
-- **Shame Leaderboard** — The worst code on the internet, ranked by shame for everyone to see
+- **Editor de codigo** — Cole ou digite seu codigo no editor e envie para ser roasted
+- **Roast mode** — Alterne entre feedback construtivo e roast mode (sarcasmo maximo ativado)
+- **Score** — Cada envio recebe uma nota de 0 a 10 baseada na qualidade do codigo
+- **Shame Leaderboard** — O pior codigo da internet, ranqueado pela vergonha para todo mundo ver
 
-## How it works
+## Como funciona
 
-1. Paste your code into the editor on the homepage
-2. Toggle roast mode on or off depending on how thick your skin is
-3. Hit `$ roast_my_code` and wait for the AI to tear your code apart
-4. Get a detailed breakdown with scores, badges, and suggested fixes
-5. If your code is bad enough, it might end up on the shame leaderboard
+1. Cole seu codigo no editor da homepage
+2. Ative ou desative o roast mode dependendo de quao grossa e a sua pele
+3. Clique em `$ roast_my_code` e espere a IA destruir seu codigo
+4. Receba um breakdown detalhado com scores, badges e sugestoes de correcao
+5. Se seu codigo for ruim o suficiente, ele pode parar no shame leaderboard
 
-## Running locally
+## Rodando localmente
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
-## License
+## Licenca
 
 MIT

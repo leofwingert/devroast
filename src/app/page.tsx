@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { CodeEditor } from "@/components/editor/code-editor";
+import { LanguageSelector } from "@/components/editor/language-selector";
+import type { LanguageKey } from "@/components/editor/languages";
 import { Button } from "@/components/ui/button";
 import { Toggle, ToggleLabel } from "@/components/ui/toggle";
 
@@ -71,7 +74,17 @@ function LineNumbers({ count }: { count: number }) {
 
 export default function Home() {
 	const [code, setCode] = useState(sampleCode);
+	const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey | null>(
+		null,
+	);
+	const [detectedLanguage, setDetectedLanguage] = useState<LanguageKey | null>(
+		null,
+	);
 	const lines = code.split("\n");
+
+	const handleLanguageDetected = useCallback((lang: LanguageKey | null) => {
+		setDetectedLanguage(lang);
+	}, []);
 
 	return (
 		<main className="flex w-full flex-col items-center">
@@ -104,12 +117,13 @@ export default function Home() {
 				{/* Editor Body */}
 				<div className="flex" style={{ height: 320 }}>
 					<LineNumbers count={lines.length} />
-					<textarea
+					<CodeEditor
 						value={code}
-						onChange={(e) => setCode(e.target.value)}
-						spellCheck={false}
-						className="flex-1 resize-none bg-transparent p-4 font-mono text-xs leading-6 text-text-primary outline-none placeholder:text-text-tertiary"
+						onChange={setCode}
+						language={selectedLanguage}
+						onLanguageDetected={handleLanguageDetected}
 						placeholder="// paste your code here..."
+						className="flex-1"
 					/>
 				</div>
 			</section>
@@ -124,9 +138,16 @@ export default function Home() {
 						{"// maximum sarcasm enabled"}
 					</span>
 				</div>
-				<Button variant="primary" size="md">
-					$ roast_my_code
-				</Button>
+				<div className="flex items-center gap-3">
+					<LanguageSelector
+						detectedLanguage={detectedLanguage}
+						selectedLanguage={selectedLanguage}
+						onSelect={setSelectedLanguage}
+					/>
+					<Button variant="primary" size="md">
+						$ roast_my_code
+					</Button>
+				</div>
 			</section>
 
 			{/* Footer Stats */}
