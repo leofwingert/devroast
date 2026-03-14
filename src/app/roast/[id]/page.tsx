@@ -46,6 +46,7 @@ export async function generateMetadata({
 		openGraph: {
 			title: `Score: ${roast.score}/10 - DevRoast`,
 			description: roast.roastComment,
+			images: [`/roast/${id}/opengraph-image`],
 		},
 	};
 }
