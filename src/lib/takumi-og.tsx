@@ -1,70 +1,126 @@
+/** @jsxImportSource react */
 import type { ReactNode } from "react";
 
 interface RoastOGProps {
 	score: string;
-	verdict: string;
 	language: string;
 	lineCount: number;
 	roastComment: string;
 }
 
-export function RoastOGTemplate(props: RoastOGProps): ReactNode {
-	const truncatedComment =
-		props.roastComment.length > 100
-			? `${props.roastComment.slice(0, 97)}...`
-			: props.roastComment;
+const colors = {
+	bgPage: "#0a0a0a",
+	textPrimary: "#fafafa",
+	textTertiary: "#71717a",
+	accentAmber: "#f59e0b",
+	accentRed: "#ef4444",
+};
+
+function truncateText(text: string, maxLength: number): string {
+	if (text.length <= maxLength) return text;
+	return text.slice(0, maxLength - 3).trim() + "...";
+}
+
+export function RoastOGTemplate({
+	score,
+	language,
+	lineCount,
+	roastComment,
+}: RoastOGProps): ReactNode {
+	const truncatedComment = truncateText(roastComment, 120);
 
 	return (
 		<div
 			style={{
-				width: 1200,
-				height: 630,
-				backgroundColor: "#0a0a0a",
-				padding: 64,
 				display: "flex",
 				flexDirection: "column",
-				justifyContent: "center",
-				gap: 24,
-				fontFamily: "JetBrains Mono, monospace",
+				justifyContent: "space-between",
+				width: "100%",
+				height: "100%",
+				padding: "48px",
+				backgroundColor: colors.bgPage,
 			}}
 		>
-			<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-				<span style={{ color: "#10b981", fontSize: 24 }}>&gt;</span>
-				<span style={{ color: "#fafafa", fontSize: 24 }}>devroast</span>
-			</div>
-
-			<div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-				<span style={{ color: "#f59e0b", fontSize: 160, fontWeight: 700 }}>
-					{props.score}
-				</span>
-				<span style={{ color: "#4b5563", fontSize: 56 }}>/10</span>
-			</div>
-
-			<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					gap: "24px",
+				}}
+			>
 				<div
 					style={{
-						width: 12,
-						height: 12,
-						borderRadius: 6,
-						backgroundColor: "#ef4444",
+						display: "flex",
+						alignItems: "center",
+						gap: "16px",
 					}}
-				/>
-				<span style={{ color: "#ef4444", fontSize: 20 }}>{props.verdict}</span>
-			</div>
+				>
+					<span
+						style={{
+							fontSize: "48px",
+							fontWeight: 700,
+							color: colors.accentAmber,
+							fontFamily: "monospace",
+						}}
+					>
+						{score}/10
+					</span>
+					<span
+						style={{
+							fontSize: "24px",
+							color: colors.textTertiary,
+							fontFamily: "monospace",
+						}}
+					>
+						DevRoast
+					</span>
+				</div>
 
-			<div style={{ color: "#4b5563", fontSize: 16 }}>
-				lang: {props.language} · {props.lineCount} lines
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: "8px",
+					}}
+				>
+					<span
+						style={{
+							fontSize: "28px",
+							color: colors.textPrimary,
+							fontFamily: "sans-serif",
+							lineHeight: 1.4,
+						}}
+					>
+						{truncatedComment}
+					</span>
+				</div>
 			</div>
 
 			<div
 				style={{
-					color: "#fafafa",
-					fontSize: 22,
-					textAlign: "center",
-					maxWidth: "100%",
+					display: "flex",
+					gap: "24px",
+					alignItems: "center",
 				}}
 			>
-				{truncatedComment}
+				<span
+					style={{
+						fontSize: "18px",
+						color: colors.textTertiary,
+						fontFamily: "monospace",
+					}}
+				>
+					{language}
+				</span>
+				<span
+					style={{
+						fontSize: "18px",
+						color: colors.textTertiary,
+						fontFamily: "monospace",
+					}}
+				>
+					{lineCount} lines
+				</span>
 			</div>
 		</div>
 	);
