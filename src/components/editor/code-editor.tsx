@@ -1,12 +1,6 @@
 "use client";
 
-import {
-	type ChangeEvent,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-} from "react";
+import { type ChangeEvent, useCallback, useEffect, useMemo } from "react";
 import { tv } from "tailwind-variants";
 import type { LanguageKey } from "./languages";
 import { useHighlighter } from "./use-highlighter";
@@ -14,7 +8,7 @@ import { useLanguageDetect } from "./use-language-detect";
 
 const editorVariants = tv({
 	slots: {
-		wrapper: "relative grid overflow-auto",
+		wrapper: "relative grid",
 		highlight: [
 			"pointer-events-none [grid-area:1/1]",
 			"overflow-hidden whitespace-pre font-mono text-xs leading-6",
@@ -25,7 +19,7 @@ const editorVariants = tv({
 			"[&_code]:!font-mono [&_code]:!text-xs [&_code]:!leading-6",
 		],
 		textarea: [
-			"[grid-area:1/1] resize-none bg-transparent",
+			"[grid-area:1/1] resize-none overflow-hidden bg-transparent",
 			"whitespace-pre font-mono text-xs leading-6 caret-text-primary",
 			"p-4 outline-none",
 			"placeholder:text-text-tertiary",
@@ -54,6 +48,7 @@ type CodeEditorProps = {
 /**
  * Code editor with syntax highlighting.
  * Transparent textarea overlaid on Shiki-highlighted code.
+ * Scroll is delegated to the parent container — content grows to full size.
  */
 function CodeEditor({
 	value,
@@ -65,8 +60,6 @@ function CodeEditor({
 }: CodeEditorProps) {
 	const { isLoading, highlight, loadLanguage } = useHighlighter();
 	const { detectedLanguage } = useLanguageDetect(value);
-	const highlightRef = useRef<HTMLDivElement>(null);
-	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	// Notify parent when detected language changes
 	useEffect(() => {
@@ -89,16 +82,6 @@ function CodeEditor({
 		return highlight(value, resolvedLanguage);
 	}, [value, resolvedLanguage, isLoading, highlight]);
 
-	// Sync scroll between textarea and highlight layer
-	const handleScroll = useCallback(() => {
-		const textarea = textareaRef.current;
-		const highlightEl = highlightRef.current;
-		if (textarea && highlightEl) {
-			highlightEl.scrollTop = textarea.scrollTop;
-			highlightEl.scrollLeft = textarea.scrollLeft;
-		}
-	}, []);
-
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLTextAreaElement>) => {
 			onChange(e.target.value);
@@ -113,7 +96,6 @@ function CodeEditor({
 	return (
 		<div className={styles.wrapper({ className })}>
 			<div
-				ref={highlightRef}
 				className={styles.highlight()}
 				aria-hidden="true"
 				dangerouslySetInnerHTML={
@@ -121,10 +103,8 @@ function CodeEditor({
 				}
 			/>
 			<textarea
-				ref={textareaRef}
 				value={value}
 				onChange={handleChange}
-				onScroll={handleScroll}
 				spellCheck={false}
 				autoCapitalize="off"
 				autoComplete="off"

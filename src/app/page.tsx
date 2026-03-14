@@ -8,6 +8,8 @@ import type { LanguageKey } from "@/components/editor/languages";
 import { Button } from "@/components/ui/button";
 import { Toggle, ToggleLabel } from "@/components/ui/toggle";
 
+const MAX_CODE_LENGTH = 2000;
+
 const sampleCode = `function calculateTotal(items) {
   var total = 0;
   for (var i = 0; i < items.length; i++) {
@@ -56,7 +58,7 @@ const leaderboardData = [
 
 function LineNumbers({ count }: { count: number }) {
 	return (
-		<div className="flex flex-col border-r border-border-primary bg-bg-surface px-3 py-4">
+		<div className="sticky left-0 z-10 flex flex-col border-r border-border-primary bg-bg-surface px-3 py-4">
 			{Array.from({ length: count }, (_, i) => (
 				<span
 					key={`ln-${
@@ -81,6 +83,9 @@ export default function Home() {
 		null,
 	);
 	const lines = code.split("\n");
+	const charCount = code.length;
+	const isOverLimit = charCount > MAX_CODE_LENGTH;
+	const isEmpty = code.trim().length === 0;
 
 	const handleLanguageDetected = useCallback((lang: LanguageKey | null) => {
 		setDetectedLanguage(lang);
@@ -115,7 +120,7 @@ export default function Home() {
 				</div>
 
 				{/* Editor Body */}
-				<div className="flex" style={{ height: 320 }}>
+				<div className="flex max-h-80 overflow-auto">
 					<LineNumbers count={lines.length} />
 					<CodeEditor
 						value={code}
@@ -125,6 +130,15 @@ export default function Home() {
 						placeholder="// paste your code here..."
 						className="flex-1"
 					/>
+				</div>
+
+				{/* Character Counter */}
+				<div className="flex items-center justify-end border-t border-border-primary px-4 py-1.5">
+					<span
+						className={`font-mono text-xs ${isOverLimit ? "text-accent-red" : "text-text-tertiary"}`}
+					>
+						{charCount.toLocaleString()}/{MAX_CODE_LENGTH.toLocaleString()}
+					</span>
 				</div>
 			</section>
 
@@ -144,7 +158,7 @@ export default function Home() {
 						selectedLanguage={selectedLanguage}
 						onSelect={setSelectedLanguage}
 					/>
-					<Button variant="primary" size="md">
+					<Button variant="primary" size="md" disabled={isEmpty || isOverLimit}>
 						$ roast_my_code
 					</Button>
 				</div>

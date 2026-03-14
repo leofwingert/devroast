@@ -1,5 +1,35 @@
 @import "tailwindcss";
 
+/* Custom scrollbar — thin, dark, matches terminal aesthetic */
+@layer base {
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-border-primary) transparent;
+	}
+
+	*::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+
+	*::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background: var(--color-border-primary);
+		border-radius: 3px;
+	}
+
+	*::-webkit-scrollbar-thumb:hover {
+		background: var(--color-text-tertiary);
+	}
+
+	*::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+}
+
 @theme {
 	--font-mono:
 		"JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
