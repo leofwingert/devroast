@@ -85,20 +85,17 @@ ${code}
 \`\`\``;
 
 	try {
-		const result = await model.generateContent(prompt);
+		const result = await model.generateContent({
+			contents: [{ role: "user", parts: [{ text: prompt }] }],
+			generationConfig: {
+				responseMimeType: "application/json",
+			},
+		});
+
 		const response = result.response.text();
 
-		// Extract JSON from response (handle potential markdown code blocks)
-		const jsonMatch =
-			response.match(/```json\n([\s\S]*?)\n```/) ||
-			response.match(/\{[\s\S]*\}/);
-
-		if (!jsonMatch) {
-			throw new Error("Invalid response format");
-		}
-
-		const jsonStr = jsonMatch[1] || jsonMatch[0];
-		const parsed = JSON.parse(jsonStr);
+		// Parse JSON response directly since we set responseMimeType
+		const parsed = JSON.parse(response);
 
 		return {
 			score: Math.max(0, Math.min(10, parsed.score ?? 5)),
