@@ -17,6 +17,7 @@
 | `package.json` | Modificar | Adicionar dependência @takumi-rs/image-response |
 | `src/lib/takumi-og.tsx` | Criar | Template Takumi (componente JSX para imagem) |
 | `src/app/roast/[id]/opengraph-image.ts` | Criar | Route handler que busca dados e retorna imagem |
+| `src/app/roast/[id]/page.tsx` | Modificar | Adicionar og:image na metadata |
 
 ---
 
@@ -246,7 +247,7 @@ git commit -m "feat: add Takumi OG template for roast results"
 import { ImageResponse } from "@takumi-rs/image-response";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { roastIssues, roasts, submissions } from "@/db/schema";
+import { roasts, submissions } from "@/db/schema";
 import { RoastOGTemplate } from "@/lib/takumi-og";
 
 export const runtime = "edge";
@@ -354,3 +355,33 @@ git commit -m "feat: verify OG image integration"
 - [ ] Diferentes scores e verdicts funcionam
 - [ ] Comentários longos são truncados
 - [ ] Performance aceitável (tempo de geração)
+
+---
+
+## Task 5: Adicionar meta tag na página de roast
+
+**Files:**
+- Modify: `src/app/roast/[id]/page.tsx:43-51`
+
+- [ ] **Step 1: Atualizar generateMetadata para incluir og:image**
+
+Modificar o retorno da função `generateMetadata` para incluir a propriedade `images`:
+
+```ts
+return {
+  title: `Score: ${roast.score}/10 - DevRoast`,
+  description: roast.roastComment,
+  openGraph: {
+    title: `Score: ${roast.score}/10 - DevRoast`,
+    description: roast.roastComment,
+    images: [`/roast/${id}/opengraph-image`],
+  },
+};
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/app/roast/[id]/page.tsx
+git commit -m "feat: add OG image meta tag to roast page"
+```
