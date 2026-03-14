@@ -90,7 +90,7 @@ function CodeEditor({
 	);
 
 	// Highlight is ready when we have HTML to show
-	const ready = !!highlightedHtml && !isLoading;
+	const ready = !!highlightedHtml;
 	const styles = editorVariants({ ready });
 
 	return (
