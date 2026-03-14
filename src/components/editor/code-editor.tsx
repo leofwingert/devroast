@@ -58,7 +58,7 @@ function CodeEditor({
 	placeholder,
 	className,
 }: CodeEditorProps) {
-	const { isLoading, highlight, loadLanguage } = useHighlighter();
+	const { isLoading, highlighter, highlight, loadLanguage } = useHighlighter();
 	const { detectedLanguage } = useLanguageDetect(value);
 
 	// Notify parent when detected language changes
@@ -78,9 +78,9 @@ function CodeEditor({
 
 	// Generate highlighted HTML
 	const highlightedHtml = useMemo(() => {
-		if (isLoading || !value) return "";
+		if (!highlighter || !value) return "";
 		return highlight(value, resolvedLanguage);
-	}, [value, resolvedLanguage, isLoading, highlight]);
+	}, [value, resolvedLanguage, highlighter, highlight]);
 
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -90,7 +90,7 @@ function CodeEditor({
 	);
 
 	// Highlight is ready when we have HTML to show
-	const ready = !!highlightedHtml;
+	const ready = !!highlightedHtml && !isLoading;
 	const styles = editorVariants({ ready });
 
 	return (
