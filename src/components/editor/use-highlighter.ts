@@ -36,20 +36,20 @@ async function getHighlighter(): Promise<ShikiHighlighter> {
 
 /**
  * Hook that provides a singleton Shiki highlighter instance.
- * Initializes once with preloaded languages, then can load more on demand.
+ * Uses refs to always access the latest highlighter without re-renders.
  */
 function useHighlighter() {
 	const [isLoading, setIsLoading] = useState(!highlighterInstance);
-	const [highlighter, setHighlighter] = useState<ShikiHighlighter | null>(
-		highlighterInstance,
-	);
+	const highlighterRef = useRef<ShikiHighlighter | null>(highlighterInstance);
+	const [, forceUpdate] = useState(0);
+
 	const loadedLangsRef = useRef<Set<string>>(
 		new Set(PRELOADED_LANGUAGES.map((key) => LANGUAGES[key].shiki)),
 	);
 
 	useEffect(() => {
 		if (highlighterInstance) {
-			setHighlighter(highlighterInstance);
+			highlighterRef.current = highlighterInstance;
 			setIsLoading(false);
 			return;
 		}
@@ -57,8 +57,9 @@ function useHighlighter() {
 		let cancelled = false;
 		getHighlighter().then((instance) => {
 			if (!cancelled) {
-				setHighlighter(instance);
+				highlighterRef.current = instance;
 				setIsLoading(false);
+				forceUpdate((n) => n + 1); // Force re-render after highlighter loads
 			}
 		});
 
@@ -67,25 +68,24 @@ function useHighlighter() {
 		};
 	}, []);
 
-	const loadLanguage = useCallback(
-		async (langKey: LanguageKey) => {
-			if (!highlighter) return;
+	const loadLanguage = useCallback(async (langKey: LanguageKey) => {
+		const highlighter = highlighterRef.current;
+		if (!highlighter) return;
 
-			const shikiLang = LANGUAGES[langKey]?.shiki;
-			if (!shikiLang || loadedLangsRef.current.has(shikiLang)) return;
+		const shikiLang = LANGUAGES[langKey]?.shiki;
+		if (!shikiLang || loadedLangsRef.current.has(shikiLang)) return;
 
-			try {
-				await highlighter.loadLanguage(shikiLang as BundledLanguage);
-				loadedLangsRef.current.add(shikiLang);
-			} catch {
-				// Language not available in shiki/bundle/web — fall back to plaintext
-			}
-		},
-		[highlighter],
-	);
+		try {
+			await highlighter.loadLanguage(shikiLang as BundledLanguage);
+			loadedLangsRef.current.add(shikiLang);
+		} catch {
+			// Language not available in shiki/bundle/web — fall back to plaintext
+		}
+	}, []);
 
 	const highlight = useCallback(
 		(code: string, langKey: LanguageKey | null): string => {
+			const highlighter = highlighterRef.current;
 			if (!highlighter) return escapeHtml(code);
 
 			const shikiLang = langKey ? LANGUAGES[langKey]?.shiki : null;
@@ -103,10 +103,16 @@ function useHighlighter() {
 				return escapeHtml(code);
 			}
 		},
-		[highlighter],
+		[],
 	);
 
-	return { highlighter, isLoading, loadLanguage, highlight };
+	// Return both the ref value (for logic) and a getter for the current value
+	return {
+		highlighter: highlighterRef.current,
+		isLoading,
+		loadLanguage,
+		highlight,
+	};
 }
 
 function escapeHtml(text: string): string {
