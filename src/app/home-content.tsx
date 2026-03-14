@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { createRoast } from "@/app/actions";
 import { CodeEditor } from "@/components/editor/code-editor";
 import { LanguageSelector } from "@/components/editor/language-selector";
 import type { LanguageKey } from "@/components/editor/languages";
@@ -9,6 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Toggle, ToggleLabel } from "@/components/ui/toggle";
 
 const MAX_CODE_LENGTH = 2000;
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+	const { pending } = useFormStatus();
+	return (
+		<Button variant="primary" size="md" disabled={disabled || pending}>
+			{pending ? "$ roasting..." : "$ roast_my_code"}
+		</Button>
+	);
+}
 
 const sampleCode = `function calculateTotal(items) {
   var total = 0;
@@ -26,35 +37,6 @@ const sampleCode = `function calculateTotal(items) {
 
   return total;
 }`;
-
-const leaderboardData = [
-	{
-		rank: 1,
-		score: 1.2,
-		lines: [
-			'eval(prompt("enter code"))',
-			"document.write(response)",
-			"// trust the user lol",
-		],
-		language: "javascript",
-	},
-	{
-		rank: 2,
-		score: 1.8,
-		lines: [
-			"if (x == true) { return true; }",
-			"else if (x == false) { return false; }",
-			"else { return !false; }",
-		],
-		language: "typescript",
-	},
-	{
-		rank: 3,
-		score: 2.1,
-		lines: ["SELECT * FROM users WHERE 1=1", "-- TODO: add authentication"],
-		language: "sql",
-	},
-];
 
 function LineNumbers({ count }: { count: number }) {
 	return (
@@ -76,9 +58,10 @@ function LineNumbers({ count }: { count: number }) {
 
 type HomeContentProps = {
 	statsSlot: React.ReactNode;
+	leaderboardSlot: React.ReactNode;
 };
 
-function HomeContent({ statsSlot }: HomeContentProps) {
+function HomeContent({ statsSlot, leaderboardSlot }: HomeContentProps) {
 	const [code, setCode] = useState(sampleCode);
 	const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey | null>(
 		null,
@@ -86,6 +69,7 @@ function HomeContent({ statsSlot }: HomeContentProps) {
 	const [detectedLanguage, setDetectedLanguage] = useState<LanguageKey | null>(
 		null,
 	);
+	const [roastMode, setRoastMode] = useState(true);
 	const lines = code.split("\n");
 	const charCount = code.length;
 	const isOverLimit = charCount > MAX_CODE_LENGTH;
@@ -149,11 +133,13 @@ function HomeContent({ statsSlot }: HomeContentProps) {
 			{/* Actions Bar */}
 			<section className="mt-4 flex w-full max-w-[780px] items-center justify-between">
 				<div className="flex items-center gap-4">
-					<Toggle defaultChecked>
+					<Toggle checked={roastMode} onCheckedChange={setRoastMode}>
 						<ToggleLabel>roast mode</ToggleLabel>
 					</Toggle>
 					<span className="font-mono text-xs text-text-tertiary">
-						{"// maximum sarcasm enabled"}
+						{roastMode
+							? "// maximum sarcasm enabled"
+							: "// constructive feedback"}
 					</span>
 				</div>
 				<div className="flex items-center gap-3">
@@ -162,9 +148,20 @@ function HomeContent({ statsSlot }: HomeContentProps) {
 						selectedLanguage={selectedLanguage}
 						onSelect={setSelectedLanguage}
 					/>
-					<Button variant="primary" size="md" disabled={isEmpty || isOverLimit}>
-						$ roast_my_code
-					</Button>
+					<form action={createRoast}>
+						<input type="hidden" name="code" value={code} />
+						<input
+							type="hidden"
+							name="language"
+							value={selectedLanguage ?? ""}
+						/>
+						<input
+							type="hidden"
+							name="roastMode"
+							value={roastMode ? "true" : "false"}
+						/>
+						<SubmitButton disabled={isEmpty || isOverLimit} />
+					</form>
 				</div>
 			</section>
 
@@ -199,67 +196,8 @@ function HomeContent({ statsSlot }: HomeContentProps) {
 					</Link>
 				</div>
 
-				{/* Leaderboard Table */}
-				<div className="w-full border border-border-primary">
-					{/* Table Header */}
-					<div className="flex h-10 items-center bg-bg-surface px-5">
-						<span className="w-[50px] font-mono text-xs font-medium text-text-tertiary">
-							#
-						</span>
-						<span className="w-[70px] font-mono text-xs font-medium text-text-tertiary">
-							score
-						</span>
-						<span className="flex-1 font-mono text-xs font-medium text-text-tertiary">
-							code
-						</span>
-						<span className="w-[100px] font-mono text-xs font-medium text-text-tertiary">
-							lang
-						</span>
-					</div>
-
-					{/* Table Rows */}
-					{leaderboardData.map((entry, idx) => (
-						<div
-							key={entry.rank}
-							className={`flex px-5 py-4 ${idx < leaderboardData.length - 1 ? "border-b border-border-primary" : ""}`}
-						>
-							<span
-								className={`w-[50px] font-mono text-xs ${entry.rank === 1 ? "text-accent-amber" : "text-text-secondary"}`}
-							>
-								{entry.rank}
-							</span>
-							<span className="w-[70px] font-mono text-xs font-bold text-accent-red">
-								{entry.score.toFixed(1)}
-							</span>
-							<div className="flex flex-1 flex-col gap-0.5">
-								{entry.lines.map((line) => (
-									<span
-										key={line}
-										className={`font-mono text-xs ${line.startsWith("//") || line.startsWith("--") ? "text-[#8B8B8B]" : "text-text-primary"}`}
-									>
-										{line}
-									</span>
-								))}
-							</div>
-							<span className="w-[100px] font-mono text-xs text-text-secondary">
-								{entry.language}
-							</span>
-						</div>
-					))}
-				</div>
-
-				{/* Fade Hint */}
-				<div className="flex justify-center pb-10">
-					<span className="font-mono text-xs text-text-tertiary">
-						showing top 3 of 2,847 ·{" "}
-						<Link
-							href="/leaderboard"
-							className="text-text-secondary transition-colors hover:text-text-primary"
-						>
-							view full leaderboard {">>"}
-						</Link>
-					</span>
-				</div>
+				{/* Leaderboard Table + Footer (server-prefetched, Suspense) */}
+				{leaderboardSlot}
 			</section>
 		</main>
 	);

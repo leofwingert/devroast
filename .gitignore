@@ -36,6 +36,9 @@ yarn-error.log*
 # opencode
 .opencode/
 
+# worktrees
+.worktrees/
+
 # vercel
 .vercel
 
