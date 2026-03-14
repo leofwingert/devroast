@@ -1,12 +1,11 @@
 "use client";
 
 import { Collapsible } from "@base-ui/react/collapsible";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { tv } from "tailwind-variants";
 import { CodeBlock, CodeBlockHeader } from "@/components/ui/code-block";
 import { CodeBlockBodyClient } from "@/components/ui/code-block-client";
-import { useTRPC } from "@/trpc/client";
+import type { LeaderboardEntry, Stats } from "@/lib/get-cached-data";
 
 const AUTO_EXPAND_LINE_THRESHOLD = 5;
 
@@ -125,18 +124,12 @@ function CollapsibleCodeBody({
 	);
 }
 
-function LeaderboardContent() {
-	const trpc = useTRPC();
+type LeaderboardContentProps = {
+	stats: Stats;
+	entries: LeaderboardEntry[];
+};
 
-	const { data: entries } = useQuery(
-		trpc.leaderboard.getTop.queryOptions({ limit: 20 }),
-	);
-	const { data: stats } = useQuery(trpc.stats.getSummary.queryOptions());
-
-	if (!entries || !stats) {
-		return null;
-	}
-
+function LeaderboardContent({ stats, entries }: LeaderboardContentProps) {
 	return (
 		<main className="flex w-full flex-col items-center">
 			<section className="flex w-full max-w-[1280px] flex-col gap-10 px-20 py-10">

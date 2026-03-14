@@ -1,13 +1,12 @@
 "use client";
 
 import { Collapsible } from "@base-ui/react/collapsible";
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { tv } from "tailwind-variants";
 import { CodeBlock, CodeBlockHeader } from "@/components/ui/code-block";
 import { CodeBlockBodyClient } from "@/components/ui/code-block-client";
-import { useTRPC } from "@/trpc/client";
+import type { LeaderboardEntry } from "@/lib/get-cached-data";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -261,18 +260,11 @@ function CollapsibleCodeBody({
 // LeaderboardPreview
 // ---------------------------------------------------------------------------
 
-function LeaderboardPreview() {
-	const trpc = useTRPC();
+type LeaderboardPreviewProps = {
+	entries: LeaderboardEntry[];
+};
 
-	const { data: entries } = useQuery(
-		trpc.leaderboard.getTop.queryOptions({ limit: 3 }),
-	);
-	const { data: stats } = useQuery(trpc.stats.getSummary.queryOptions());
-
-	if (!entries || !stats) {
-		return <LeaderboardPreviewSkeleton />;
-	}
-
+function LeaderboardPreview({ entries }: LeaderboardPreviewProps) {
 	return (
 		<>
 			{/* Stacked code block cards */}
@@ -299,7 +291,7 @@ function LeaderboardPreview() {
 			{/* Footer */}
 			<div className={footerVariants()}>
 				<span className={footerTextVariants()}>
-					showing top {entries.length} of {stats.totalRoasts.toLocaleString()} ·{" "}
+					showing top {entries.length} codes ·{" "}
 					<Link href="/leaderboard" className={footerLinkVariants()}>
 						view full leaderboard {">>"}
 					</Link>

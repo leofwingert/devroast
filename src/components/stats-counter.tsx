@@ -1,10 +1,9 @@
 "use client";
 
 import NumberFlow from "@number-flow/react";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { tv } from "tailwind-variants";
-import { useTRPC } from "@/trpc/client";
+import type { Stats } from "@/lib/get-cached-data";
 
 const statsCounterVariants = tv({
 	base: "flex items-center justify-center gap-6",
@@ -14,10 +13,12 @@ const statTextVariants = tv({
 	base: "font-mono text-xs text-text-tertiary",
 });
 
-function StatsCounter({ className }: { className?: string }) {
-	const trpc = useTRPC();
-	const { data } = useQuery(trpc.stats.getSummary.queryOptions());
+type StatsCounterProps = {
+	stats: Stats;
+	className?: string;
+};
 
+function StatsCounter({ stats, className }: StatsCounterProps) {
 	const ref = useRef<HTMLDivElement>(null);
 	const [visible, setVisible] = useState(false);
 
@@ -39,8 +40,8 @@ function StatsCounter({ className }: { className?: string }) {
 		return () => observer.disconnect();
 	}, []);
 
-	const totalRoasts = visible ? (data?.totalRoasts ?? 0) : 0;
-	const avgScore = visible ? (data?.avgScore ?? 0) : 0;
+	const totalRoasts = visible ? stats.totalRoasts : 0;
+	const avgScore = visible ? stats.avgScore : 0;
 
 	return (
 		<div ref={ref} className={statsCounterVariants({ className })}>
