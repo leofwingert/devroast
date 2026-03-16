@@ -18,6 +18,7 @@ function useLanguageDetect(code: string) {
 		typeof import("highlight.js/lib/common").default | null
 	>(null);
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const [isInitialized, setIsInitialized] = useState(false);
 
 	// Lazy-load highlight.js on first render
 	useEffect(() => {
@@ -26,6 +27,7 @@ function useLanguageDetect(code: string) {
 		import("highlight.js/lib/common").then((mod) => {
 			if (!cancelled) {
 				hljsRef.current = mod.default;
+				setIsInitialized(true);
 			}
 		});
 
@@ -34,10 +36,15 @@ function useLanguageDetect(code: string) {
 		};
 	}, []);
 
-	// Debounced detection
+	// Debounced detection - only run when both code changes AND highlight.js is loaded
 	useEffect(() => {
 		if (!code.trim()) {
 			setDetectedLanguage(null);
+			return;
+		}
+
+		// If highlight.js not loaded yet, wait for it
+		if (!isInitialized) {
 			return;
 		}
 
@@ -71,7 +78,7 @@ function useLanguageDetect(code: string) {
 				clearTimeout(timerRef.current);
 			}
 		};
-	}, [code]);
+	}, [code, isInitialized]);
 
 	return { detectedLanguage, isDetecting };
 }

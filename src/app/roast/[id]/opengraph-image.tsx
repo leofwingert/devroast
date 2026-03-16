@@ -11,7 +11,7 @@ export const size = {
 	width: 1200,
 	height: 630,
 };
-export const contentType = "image/png";
+export const contentType = "image/webp";
 
 export default async function Image({
 	params,
@@ -48,7 +48,7 @@ export default async function Image({
 					Roast not found
 				</span>
 			</div>,
-			{ module, ...size },
+			{ module, ...size, format: "png" },
 		);
 	}
 
@@ -70,6 +70,6 @@ export default async function Image({
 			lineCount={lineCount}
 			roastComment={roastComment}
 		/>,
-		{ module, ...size },
+		{ module, ...size, format: "png" },
 	);
 }
