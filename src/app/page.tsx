@@ -7,10 +7,16 @@ import { HomeContent } from "./home-content";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-	const [stats, entries] = await Promise.all([
+	const [statsResult, entriesResult] = await Promise.allSettled([
 		getCachedStats(),
 		getCachedLeaderboard(3),
 	]);
+	const stats =
+		statsResult.status === "fulfilled"
+			? statsResult.value
+			: { totalRoasts: 0, avgScore: 0 };
+	const entries =
+		entriesResult.status === "fulfilled" ? entriesResult.value : [];
 
 	return (
 		<HydrateClient>

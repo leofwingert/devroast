@@ -15,7 +15,7 @@ const client = postgres(connectionString, {
 	ssl: isSupabase ? "require" : undefined,
 	max: 1,
 	idle_timeout: 20,
-	connect_timeout: 15,
+	connect_timeout: 5,
 	connection: {
 		statement_timeout: 5000,
 	},
