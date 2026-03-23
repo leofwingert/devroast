@@ -11,6 +11,9 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
 	title: "DevRoast",
+	icons: {
+		icon: "/dev.png",
+	},
 	description: "DevRoast — paste your code. get roasted.",
 };
 
