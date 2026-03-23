@@ -49,18 +49,18 @@ const PRELOADED_LANGUAGES: LanguageKey[] = [
  * Map from highlight.js language names to our canonical keys.
  * hljs sometimes returns names that differ from our keys.
  */
-const HLJS_TO_KEY: Record<string, LanguageKey> = Object.fromEntries(
-	Object.entries(LANGUAGES).flatMap(([key, entry]) => {
-		const mappings: [string, LanguageKey][] = [
-			[entry.hljs, key as LanguageKey],
-		];
-		// Also map the key itself if different from hljs
-		if (key !== entry.hljs) {
-			mappings.push([key, key as LanguageKey]);
-		}
-		return mappings;
-	}),
-);
+const HLJS_TO_KEY = (
+	Object.entries(LANGUAGES) as [LanguageKey, LanguageEntry][]
+).reduce<Record<string, LanguageKey>>((acc, [key, entry]) => {
+	// Keep first mapping so canonical entries (javascript/typescript) win over aliases (jsx/tsx).
+	if (!acc[entry.hljs]) {
+		acc[entry.hljs] = key;
+	}
+	if (!acc[key]) {
+		acc[key] = key;
+	}
+	return acc;
+}, {});
 
 /** Resolve a highlight.js language name to our canonical key */
 function resolveHljsLanguage(hljsLang: string): LanguageKey | null {

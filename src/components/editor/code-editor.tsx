@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useCallback, useEffect, useMemo } from "react";
+import { type ChangeEvent, useCallback, useEffect } from "react";
 import { tv } from "tailwind-variants";
 import type { LanguageKey } from "./languages";
 import { useHighlighter } from "./use-highlighter";
@@ -8,10 +8,10 @@ import { useLanguageDetect } from "./use-language-detect";
 
 const editorVariants = tv({
 	slots: {
-		wrapper: "relative grid",
+		wrapper: "relative grid min-w-0 self-start",
 		highlight: [
 			"pointer-events-none [grid-area:1/1]",
-			"overflow-hidden whitespace-pre font-mono text-xs leading-6",
+			"whitespace-pre font-mono text-xs leading-6",
 			"p-4",
 			// Strip Shiki wrapper styles so it inherits our layout
 			"[&_pre]:!m-0 [&_pre]:!bg-transparent [&_pre]:!p-0",
@@ -19,7 +19,7 @@ const editorVariants = tv({
 			"[&_code]:!font-mono [&_code]:!text-xs [&_code]:!leading-6",
 		],
 		textarea: [
-			"[grid-area:1/1] resize-none overflow-hidden bg-transparent",
+			"[grid-area:1/1] w-full resize-none overflow-hidden bg-transparent",
 			"whitespace-pre font-mono text-xs leading-6 caret-text-primary",
 			"p-4 outline-none",
 			"placeholder:text-text-tertiary",
@@ -58,7 +58,7 @@ function CodeEditor({
 	placeholder,
 	className,
 }: CodeEditorProps) {
-	const { isLoading, highlighter, highlight, loadLanguage } = useHighlighter();
+	const { highlighter, highlight, loadLanguage } = useHighlighter();
 	const { detectedLanguage } = useLanguageDetect(value);
 
 	// Notify parent when detected language changes
@@ -76,11 +76,9 @@ function CodeEditor({
 		}
 	}, [resolvedLanguage, loadLanguage]);
 
-	// Generate highlighted HTML
-	const highlightedHtml = useMemo(() => {
-		if (!highlighter || !value) return "";
-		return highlight(value, resolvedLanguage);
-	}, [value, resolvedLanguage, highlighter, highlight]);
+	// Generate highlighted HTML on each render so async language loads repaint immediately.
+	const highlightedHtml =
+		highlighter && value ? highlight(value, resolvedLanguage) : "";
 
 	const handleChange = useCallback(
 		(e: ChangeEvent<HTMLTextAreaElement>) => {

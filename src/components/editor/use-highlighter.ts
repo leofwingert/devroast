@@ -43,6 +43,7 @@ function useHighlighter() {
 	const [highlighter, setHighlighter] = useState<ShikiHighlighter | null>(
 		highlighterInstance,
 	);
+	const [, setLoadedLangsVersion] = useState(0);
 	const loadedLangsRef = useRef<Set<string>>(
 		new Set(PRELOADED_LANGUAGES.map((key) => LANGUAGES[key].shiki)),
 	);
@@ -77,6 +78,7 @@ function useHighlighter() {
 			try {
 				await highlighter.loadLanguage(shikiLang as BundledLanguage);
 				loadedLangsRef.current.add(shikiLang);
+				setLoadedLangsVersion((version) => version + 1);
 			} catch {
 				// Language not available in shiki/bundle/web — fall back to plaintext
 			}
@@ -106,7 +108,12 @@ function useHighlighter() {
 		[highlighter],
 	);
 
-	return { highlighter, isLoading, loadLanguage, highlight };
+	return {
+		highlighter,
+		isLoading,
+		loadLanguage,
+		highlight,
+	};
 }
 
 function escapeHtml(text: string): string {

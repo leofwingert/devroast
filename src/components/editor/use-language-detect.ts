@@ -14,6 +14,7 @@ function useLanguageDetect(code: string) {
 		null,
 	);
 	const [isDetecting, setIsDetecting] = useState(false);
+	const [isHljsReady, setIsHljsReady] = useState(false);
 	const hljsRef = useRef<
 		typeof import("highlight.js/lib/common").default | null
 	>(null);
@@ -26,6 +27,7 @@ function useLanguageDetect(code: string) {
 		import("highlight.js/lib/common").then((mod) => {
 			if (!cancelled) {
 				hljsRef.current = mod.default;
+				setIsHljsReady(true);
 			}
 		});
 
@@ -38,6 +40,12 @@ function useLanguageDetect(code: string) {
 	useEffect(() => {
 		if (!code.trim()) {
 			setDetectedLanguage(null);
+			setIsDetecting(false);
+			return;
+		}
+
+		if (!isHljsReady || !hljsRef.current) {
+			setIsDetecting(false);
 			return;
 		}
 
@@ -71,7 +79,7 @@ function useLanguageDetect(code: string) {
 				clearTimeout(timerRef.current);
 			}
 		};
-	}, [code]);
+	}, [code, isHljsReady]);
 
 	return { detectedLanguage, isDetecting };
 }

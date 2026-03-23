@@ -108,7 +108,7 @@ function HomeContent({ statsSlot, leaderboardSlot }: HomeContentProps) {
 				</div>
 
 				{/* Editor Body */}
-				<div className="flex max-h-80 overflow-auto">
+				<div className="flex max-h-80 items-start overflow-auto">
 					<LineNumbers count={lines.length} />
 					<CodeEditor
 						value={code}
