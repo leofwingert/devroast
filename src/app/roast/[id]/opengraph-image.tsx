@@ -273,7 +273,7 @@ async function renderOgPng(element: ReactElement) {
 		})
 		.toBuffer();
 
-	return new Response(finalBuffer, {
+	return new Response(new Uint8Array(finalBuffer), {
 		headers: {
 			"Content-Type": "image/png",
 		},
