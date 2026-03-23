@@ -3,7 +3,7 @@ import { cache } from "react";
 import { db } from "@/db";
 
 export const createTRPCContext = cache(async () => {
-	return { db: db() };
+	return { db };
 });
 
 type Context = Awaited<ReturnType<typeof createTRPCContext>>;

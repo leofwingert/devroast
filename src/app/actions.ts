@@ -16,7 +16,7 @@ export async function createRoast(formData: FormData) {
 
 	const lineCount = code.split("\n").length;
 
-	const [submission] = await db()
+	const [submission] = await db
 		.insert(submissions)
 		.values({
 			code,
@@ -28,7 +28,7 @@ export async function createRoast(formData: FormData) {
 
 	const result = await analyzeCode(code, language, roastMode);
 
-	const [roast] = await db()
+	const [roast] = await db
 		.insert(roasts)
 		.values({
 			submissionId: submission.id,
@@ -40,7 +40,7 @@ export async function createRoast(formData: FormData) {
 		.returning();
 
 	if (result.issues.length > 0) {
-		await db().insert(roastIssues).values(
+		await db.insert(roastIssues).values(
 			result.issues.map((issue, index) => ({
 				roastId: roast.id,
 				severity: issue.severity,
@@ -52,7 +52,7 @@ export async function createRoast(formData: FormData) {
 	}
 
 	if (result.diffLines.length > 0) {
-		await db().insert(diffLines).values(
+		await db.insert(diffLines).values(
 			result.diffLines.map((line, index) => ({
 				roastId: roast.id,
 				type: line.type,
