@@ -4,7 +4,8 @@ import { getCachedLeaderboard, getCachedStats } from "@/lib/get-cached-data";
 import { HydrateClient } from "@/trpc/server";
 import { HomeContent } from "./home-content";
 
-export const dynamic = "force-dynamic";
+/** Revalidate data every 30s to keep pages fast with near-real-time data */
+export const revalidate = 30;
 
 export default async function Home() {
 	const [statsResult, entriesResult] = await Promise.allSettled([
