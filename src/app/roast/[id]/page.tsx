@@ -27,6 +27,7 @@ export async function generateMetadata({
 	params: Promise<{ id: string }>;
 }): Promise<Metadata> {
 	const { id } = await params;
+	const ogImageUrl = `/roast/${id}/opengraph-image`;
 
 	const [roast] = await db
 		.select()
@@ -46,6 +47,20 @@ export async function generateMetadata({
 		openGraph: {
 			title: `Score: ${roast.score}/10 - DevRoast`,
 			description: roast.roastComment,
+			images: [
+				{
+					url: ogImageUrl,
+					width: 1200,
+					height: 630,
+					alt: "DevRoast result image",
+				},
+			],
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `Score: ${roast.score}/10 - DevRoast`,
+			description: roast.roastComment,
+			images: [ogImageUrl],
 		},
 	};
 }
@@ -66,7 +81,7 @@ export default async function RoastResultPage({
 	if (!roast) {
 		return (
 			<main className="flex w-full flex-col items-center">
-				<section className="flex w-full max-w-[1280px] flex-col gap-10 px-20 py-10">
+				<section className="flex w-full max-w-7xl flex-col gap-10 px-20 py-10">
 					<h1 className="font-mono text-2xl text-accent-red">
 						Roast not found
 					</h1>
@@ -94,10 +109,11 @@ export default async function RoastResultPage({
 		.orderBy(diffLines.lineNumber);
 
 	const scoreNum = Number.parseFloat(roast.score);
+	const ogPreviewUrl = `/roast/${roast.id}/opengraph`;
 
 	return (
 		<main className="flex w-full flex-col items-center">
-			<section className="flex w-full max-w-[1280px] flex-col gap-10 px-20 py-10">
+			<section className="flex w-full max-w-7xl flex-col gap-10 px-20 py-10">
 				{/* ── Score Hero ─────────────────────────────────── */}
 				<div className="flex items-center gap-12">
 					<ScoreRing score={scoreNum} />
@@ -116,6 +132,14 @@ export default async function RoastResultPage({
 								lang: {submission?.language ?? "unknown"} &middot;{" "}
 								{submission?.lineCount ?? 0} lines
 							</span>
+							<div className="flex items-center gap-3">
+								<a
+									className="inline-flex items-center border border-border-primary px-4 py-2 font-mono text-xs text-text-primary transition-colors hover:bg-border-primary/50 active:bg-border-primary/70"
+									href={ogPreviewUrl}
+								>
+									$ share_roast
+								</a>
+							</div>
 						</div>
 					</div>
 				</div>
