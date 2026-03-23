@@ -16,6 +16,9 @@ const client = postgres(connectionString, {
 	max: 1,
 	idle_timeout: 20,
 	connect_timeout: 15,
+	connection: {
+		statement_timeout: 5000,
+	},
 });
 
 export const db = drizzle(client, { casing: "snake_case" });
