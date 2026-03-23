@@ -20,9 +20,11 @@ export type RoastResult = {
 	}>;
 };
 
-const groq = new Groq({
-	apiKey: process.env.GROQ_API_KEY,
-});
+let _groq: Groq | undefined;
+function groq() {
+	if (!_groq) _groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+	return _groq;
+}
 
 const SYSTEM_PROMPT_ROAST = `You are DevRoast, an AI that brutally roasts code submissions. Your goal is to be sarcastically harsh but technically accurate.
 
@@ -85,7 +87,7 @@ ${code}
 \`\`\``;
 
 	try {
-		const chatCompletion = await groq.chat.completions.create({
+		const chatCompletion = await groq().chat.completions.create({
 			messages: [{ role: "user", content: prompt }],
 			model: "llama-3.3-70b-versatile",
 			response_format: { type: "json_object" },

@@ -10,7 +10,7 @@ function createDb(): PostgresJsDatabase {
 		throw new Error("Missing DATABASE_URL environment variable.");
 	}
 
-	const isSupabase = connectionString.includes("supabase.com");
+	const isSupabase = connectionString.includes("supabase");
 
 	// Supabase pooler works best in transaction mode with prepared statements off.
 	const client = postgres(connectionString, {
@@ -18,7 +18,7 @@ function createDb(): PostgresJsDatabase {
 		ssl: isSupabase ? "require" : undefined,
 		max: 1,
 		idle_timeout: 20,
-		connect_timeout: 15,
+		connect_timeout: 10,
 		connection: {
 			statement_timeout: 5000,
 		},
@@ -27,9 +27,7 @@ function createDb(): PostgresJsDatabase {
 	return drizzle(client, { casing: "snake_case" });
 }
 
-export const db = new Proxy({} as PostgresJsDatabase, {
-	get(_target, prop, receiver) {
-		if (!_db) _db = createDb();
-		return Reflect.get(_db, prop, receiver);
-	},
-});
+export function db(): PostgresJsDatabase {
+	if (!_db) _db = createDb();
+	return _db;
+}

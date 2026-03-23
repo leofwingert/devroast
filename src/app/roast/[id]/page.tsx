@@ -29,7 +29,7 @@ export async function generateMetadata({
 	const { id } = await params;
 	const ogImageUrl = `/roast/${id}/opengraph-image`;
 
-	const [roast] = await db
+	const [roast] = await db()
 		.select()
 		.from(roasts)
 		.where(eq(roasts.id, id))
@@ -72,7 +72,7 @@ export default async function RoastResultPage({
 }) {
 	const { id } = await params;
 
-	const [roast] = await db
+	const [roast] = await db()
 		.select()
 		.from(roasts)
 		.where(eq(roasts.id, id))
@@ -90,19 +90,19 @@ export default async function RoastResultPage({
 		);
 	}
 
-	const [submission] = await db
+	const [submission] = await db()
 		.select()
 		.from(submissions)
 		.where(eq(submissions.id, roast.submissionId))
 		.limit(1);
 
-	const issues = await db
+	const issues = await db()
 		.select()
 		.from(roastIssues)
 		.where(eq(roastIssues.roastId, roast.id))
 		.orderBy(roastIssues.sortOrder);
 
-	const diff = await db
+	const diff = await db()
 		.select()
 		.from(diffLines)
 		.where(eq(diffLines.roastId, roast.id))

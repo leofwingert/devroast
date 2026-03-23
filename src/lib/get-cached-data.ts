@@ -17,7 +17,7 @@ export type LeaderboardEntry = {
 
 export async function getCachedStats(): Promise<Stats> {
 	try {
-		const [result] = await db
+		const [result] = await db()
 			.select({
 				totalRoasts: sql<number>`count(*)`,
 				avgScore: sql<number>`avg(${roasts.score})`,
@@ -41,7 +41,7 @@ export async function getCachedLeaderboard(
 	limit: number,
 ): Promise<LeaderboardEntry[]> {
 	try {
-		const rows = await db
+		const rows = await db()
 			.select({
 				rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${roasts.score} ASC)`,
 				score: roasts.score,

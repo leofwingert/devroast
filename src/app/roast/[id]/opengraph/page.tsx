@@ -11,7 +11,7 @@ export default async function RoastOpenGraphPage({
 	const { id } = await params;
 	const ogImageUrl = `/roast/${id}/opengraph-image`;
 
-	const [roast] = await db
+	const [roast] = await db()
 		.select({
 			id: roasts.id,
 		})
