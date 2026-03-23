@@ -2,7 +2,8 @@ import { getCachedLeaderboard, getCachedStats } from "@/lib/get-cached-data";
 import { HydrateClient } from "@/trpc/server";
 import { LeaderboardContent } from "./leaderboard-content";
 
-export const dynamic = "force-dynamic";
+/** Revalidate data every minute */
+export const revalidate = 60;
 
 export default async function LeaderboardPage() {
 	const [stats, entries] = await Promise.all([

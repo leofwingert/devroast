@@ -16,37 +16,50 @@ export type LeaderboardEntry = {
 };
 
 export async function getCachedStats(): Promise<Stats> {
-	const [result] = await db
-		.select({
-			totalRoasts: sql<number>`count(*)`,
-			avgScore: sql<number>`avg(${roasts.score})`,
-		})
-		.from(roasts);
+	try {
+		const [result] = await db
+			.select({
+				totalRoasts: sql<number>`count(*)`,
+				avgScore: sql<number>`avg(${roasts.score})`,
+			})
+			.from(roasts);
 
-	return {
-		totalRoasts: Number(result?.totalRoasts) || 0,
-		avgScore: Number(result?.avgScore) || 0,
-	};
+		return {
+			totalRoasts: Number(result?.totalRoasts) || 0,
+			avgScore: Number(result?.avgScore) || 0,
+		};
+	} catch (error) {
+		console.error("getCachedStats query failed", error);
+		return {
+			totalRoasts: 0,
+			avgScore: 0,
+		};
+	}
 }
 
 export async function getCachedLeaderboard(
 	limit: number,
 ): Promise<LeaderboardEntry[]> {
-	const rows = await db
-		.select({
-			rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${roasts.score} ASC)`,
-			score: roasts.score,
-			code: submissions.code,
-			language: submissions.language,
-			lineCount: submissions.lineCount,
-		})
-		.from(roasts)
-		.innerJoin(submissions, eq(roasts.submissionId, submissions.id))
-		.orderBy(asc(roasts.score))
-		.limit(limit);
+	try {
+		const rows = await db
+			.select({
+				rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${roasts.score} ASC)`,
+				score: roasts.score,
+				code: submissions.code,
+				language: submissions.language,
+				lineCount: submissions.lineCount,
+			})
+			.from(roasts)
+			.innerJoin(submissions, eq(roasts.submissionId, submissions.id))
+			.orderBy(asc(roasts.score))
+			.limit(limit);
 
-	return rows.map((row) => ({
-		...row,
-		score: Number.parseFloat(row.score),
-	}));
+		return rows.map((row) => ({
+			...row,
+			score: Number.parseFloat(row.score),
+		}));
+	} catch (error) {
+		console.error("getCachedLeaderboard query failed", error);
+		return [];
+	}
 }
