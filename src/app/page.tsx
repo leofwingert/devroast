@@ -4,8 +4,7 @@ import { getCachedLeaderboard, getCachedStats } from "@/lib/get-cached-data";
 import { HydrateClient } from "@/trpc/server";
 import { HomeContent } from "./home-content";
 
-/** Revalidate data every hour */
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
 	const [stats, entries] = await Promise.all([

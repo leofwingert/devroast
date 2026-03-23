@@ -12,7 +12,18 @@ import { diffLines, roastIssues, roasts, submissions } from "./schema";
 // Connection
 // ---------------------------------------------------------------------------
 
-const client = postgres(process.env.DATABASE_URL!);
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+	throw new Error("Missing DATABASE_URL environment variable.");
+}
+
+const isSupabase = connectionString.includes("supabase.com");
+
+const client = postgres(connectionString, {
+	prepare: false,
+	ssl: isSupabase ? "require" : undefined,
+});
 const db = drizzle(client, { casing: "snake_case" });
 
 // ---------------------------------------------------------------------------
